@@ -2,7 +2,7 @@
 // Keeps your YouTube Data API key server-side only.
 // Deploy to Vercel and set YOUTUBE_API_KEY in your project’s Environment Variables.
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
 // Only allow GET requests
 if (req.method !== “GET”) {
 return res.status(405).json({ error: “Method not allowed” });
@@ -34,7 +34,9 @@ const data = await upstream.json();
 
 if (!upstream.ok) {
   const message = data?.error?.message || "YouTube API error";
-  return res.status(upstream.status).json({ error: message });
+  const reason = data?.error?.errors?.[0]?.reason || "";
+  const domain = data?.error?.errors?.[0]?.domain || "";
+  return res.status(upstream.status).json({ error: message, reason, domain, raw: data?.error });
 }
 
 const results = (data.items || []).map(item => ({
