@@ -15,7 +15,6 @@
       --text: #f5f5f5;
       --muted: #a1a1aa;
       --border: rgba(255, 255, 255, 0.08);
-      --danger: #ff5c7a;
       --gold: #ffd166;
     }
 
@@ -41,19 +40,12 @@
       grid-column: 1 / 3;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 16px;
       padding: 14px 22px;
-      background: rgba(8, 8, 10, 0.82);
+      background: rgba(8, 8, 10, 0.86);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(18px);
       z-index: 20;
-    }
-
-    .nav-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
     }
 
     .brand {
@@ -85,111 +77,11 @@
       cursor: pointer;
       display: grid;
       place-items: center;
-    }
-
-    .hamburger span,
-    .hamburger span::before,
-    .hamburger span::after {
-      display: block;
-      width: 20px;
-      height: 2px;
-      background: var(--text);
-      border-radius: 999px;
-      content: "";
-      position: relative;
-    }
-
-    .hamburger span::before {
-      position: absolute;
-      top: -7px;
-    }
-
-    .hamburger span::after {
-      position: absolute;
-      top: 7px;
-    }
-
-    .menu-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(6px);
-      opacity: 0;
-      pointer-events: none;
-      transition: 0.2s ease;
-      z-index: 40;
-    }
-
-    .menu-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .side-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: min(86vw, 340px);
-      background: rgba(12, 12, 15, 0.96);
-      border-right: 1px solid var(--border);
-      transform: translateX(-105%);
-      transition: transform 0.24s ease;
-      z-index: 50;
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-      box-shadow: 24px 0 80px rgba(0,0,0,0.45);
-    }
-
-    .side-overlay.open {
-      transform: translateX(0);
-    }
-
-    .overlay-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .close-menu {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: var(--panel-soft);
-      color: var(--text);
-      cursor: pointer;
-      font-size: 20px;
-    }
-
-    .nav {
-      display: grid;
-      gap: 8px;
-    }
-
-    .nav button,
-    .ghost-btn {
-      border: 0;
-      color: var(--text);
-      border-radius: 14px;
-      padding: 12px 14px;
-      cursor: pointer;
-      font-weight: 800;
-      text-align: left;
-      background: transparent;
-    }
-
-    .nav button.active,
-    .nav button:hover,
-    .ghost-btn:hover {
-      background: var(--panel-soft);
+      font-size: 24px;
     }
 
     .top-search {
       flex: 1;
-      max-width: 850px;
       display: flex;
       gap: 10px;
       background: rgba(255, 255, 255, 0.08);
@@ -241,10 +133,6 @@
       border: 1px solid var(--border);
       border-radius: 28px;
       padding: 28px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 20px;
-      align-items: center;
       margin-bottom: 24px;
     }
 
@@ -260,17 +148,6 @@
       max-width: 760px;
     }
 
-    .hero-card {
-      width: 160px;
-      height: 160px;
-      border-radius: 34px;
-      background: linear-gradient(145deg, #1db954, #0b5427);
-      display: grid;
-      place-items: center;
-      font-size: 58px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    }
-
     .section-head {
       display: flex;
       justify-content: space-between;
@@ -283,18 +160,26 @@
       margin: 0;
     }
 
+    .youtube-panel,
+    .now-playing-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 18px;
+    }
+
     .video-results {
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }
 
     .video-item {
       display: grid;
-      grid-template-columns: 110px 1fr auto;
+      grid-template-columns: 140px 1fr auto;
       align-items: center;
       gap: 12px;
-      padding: 10px;
-      border-radius: 16px;
+      padding: 12px;
+      border-radius: 18px;
       background: rgba(255, 255, 255, 0.045);
       border: 1px solid transparent;
     }
@@ -306,12 +191,10 @@
     }
 
     .thumb {
-      width: 110px;
-      height: 62px;
-      border-radius: 12px;
+      width: 140px;
+      aspect-ratio: 16 / 9;
+      border-radius: 14px;
       background: #000;
-      display: grid;
-      place-items: center;
       overflow: hidden;
     }
 
@@ -322,7 +205,8 @@
     }
 
     .track-title {
-      font-weight: 900;
+      font-weight: 950;
+      font-size: 17px;
     }
 
     .track-meta,
@@ -331,20 +215,14 @@
       font-size: 13px;
     }
 
-    .mini-controls {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
     .small-btn {
       border: 1px solid var(--border);
       background: var(--panel-soft);
       color: var(--text);
-      padding: 9px 11px;
-      border-radius: 12px;
+      padding: 10px 13px;
+      border-radius: 13px;
       cursor: pointer;
-      font-weight: 800;
+      font-weight: 900;
       white-space: nowrap;
     }
 
@@ -361,20 +239,6 @@
       overflow: auto;
     }
 
-    .now-playing-card,
-    .youtube-panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      padding: 18px;
-    }
-
-    .youtube-panel {
-      margin-top: 18px;
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.05);
-    }
-
     .big-cover {
       aspect-ratio: 1;
       border-radius: 24px;
@@ -386,7 +250,8 @@
       overflow: hidden;
     }
 
-    .big-cover img {
+    .big-cover img,
+    .cover-small img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -407,8 +272,8 @@
     }
 
     .control-btn {
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       border-radius: 999px;
       border: 0;
       cursor: pointer;
@@ -418,22 +283,28 @@
     }
 
     .control-btn.play {
-      width: 56px;
-      height: 56px;
+      width: 60px;
+      height: 60px;
       background: var(--accent);
       color: #061008;
       font-weight: 900;
     }
 
-    .mini-note {
-      color: var(--muted);
+    .gold-note {
+      color: #ffe9ad;
+      background: rgba(255, 209, 102, 0.11);
+      border: 1px solid rgba(255, 209, 102, 0.25);
+      border-radius: 16px;
+      padding: 10px;
       font-size: 12px;
-      line-height: 1.5;
+      line-height: 1.45;
+      margin-top: 10px;
     }
 
-    .warning,
-    .ok-note,
-    .gold-note {
+    .ok-note {
+      color: #b9ffd0;
+      background: rgba(29,185,84,0.10);
+      border: 1px solid rgba(29,185,84,0.26);
       border-radius: 16px;
       padding: 10px;
       font-size: 12px;
@@ -445,26 +316,19 @@
       color: #ffd1da;
       background: rgba(255, 92, 122, 0.12);
       border: 1px solid rgba(255, 92, 122, 0.28);
-    }
-
-    .ok-note {
-      color: #b9ffd0;
-      background: rgba(29,185,84,0.10);
-      border: 1px solid rgba(29,185,84,0.26);
-    }
-
-    .gold-note {
-      color: #ffe9ad;
-      background: rgba(255, 209, 102, 0.11);
-      border: 1px solid rgba(255, 209, 102, 0.25);
+      border-radius: 16px;
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.45;
+      margin-top: 10px;
     }
 
     iframe {
       width: 100%;
       border: 0;
       border-radius: 18px;
-      margin-top: 12px;
       background: #000;
+      margin-top: 14px;
     }
 
     .player-bar {
@@ -486,20 +350,14 @@
     }
 
     .cover-small {
-      width: 46px;
-      height: 46px;
-      border-radius: 12px;
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
       background: linear-gradient(135deg, #2dd36f, #253d2c);
       display: grid;
       place-items: center;
       overflow: hidden;
       flex: 0 0 auto;
-    }
-
-    .cover-small img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
     }
 
     .fake-progress {
@@ -519,28 +377,6 @@
     }
 
     @media (max-width: 1120px) {
-      .app {
-        grid-template-columns: 1fr;
-        grid-template-rows: 74px 1fr auto auto;
-      }
-
-      .top-nav,
-      .player-bar {
-        grid-column: 1;
-      }
-
-      .right-panel {
-        grid-column: 1;
-        border-left: 0;
-        border-top: 1px solid var(--border);
-      }
-
-      .player-bar {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 720px) {
       body {
         overflow: auto;
       }
@@ -553,6 +389,24 @@
       .top-nav {
         position: sticky;
         top: 0;
+      }
+
+      .right-panel {
+        border-left: 0;
+        border-top: 1px solid var(--border);
+      }
+
+      .player-bar {
+        position: sticky;
+        bottom: 0;
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .top-nav {
+        gap: 10px;
+        padding: 10px 14px;
       }
 
       .brand span {
@@ -568,71 +422,29 @@
         padding: 16px;
       }
 
-      .hero {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-card {
-        display: none;
-      }
-
       .video-item {
         grid-template-columns: 1fr;
       }
 
       .thumb {
         width: 100%;
-        height: auto;
-        aspect-ratio: 16 / 9;
-      }
-
-      .mini-controls {
-        grid-column: 1 / -1;
-      }
-
-      .player-bar {
-        position: sticky;
-        bottom: 0;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="menu-backdrop" id="menuBackdrop" onclick="closeMenu()"></div>
+  <div class="app">
+    <header class="top-nav">
+      <button class="hamburger" onclick="focusSearch()">☰</button>
 
-  <aside class="side-overlay" id="sideOverlay">
-    <div class="overlay-head">
       <div class="brand">
         <div class="logo">♪</div>
         <span>My Locker</span>
       </div>
-      <button class="close-menu" onclick="closeMenu()">×</button>
-    </div>
-
-    <nav class="nav">
-      <button class="active" onclick="focusSearch(); closeMenu();">🏠 Home</button>
-      <button onclick="focusSearch(); closeMenu();">🔎 Search YouTube</button>
-      <button onclick="clearResults(); closeMenu();">🧹 Clear Results</button>
-      <button onclick="clearPlayer(); closeMenu();">⏹ Stop Player</button>
-    </nav>
-  </aside>
-
-  <div class="app">
-    <header class="top-nav">
-      <div class="nav-left">
-        <button class="hamburger" onclick="openMenu()" aria-label="Open menu">
-          <span></span>
-        </button>
-
-        <div class="brand">
-          <div class="logo">♪</div>
-          <span>My Locker</span>
-        </div>
-      </div>
 
       <form class="top-search" onsubmit="event.preventDefault(); searchYouTube();">
-        <input id="youtubeQuery" placeholder="Search YouTube music, artists, playlists..." />
+        <input id="youtubeQuery" placeholder="Search YouTube music..." />
         <button type="submit">Search</button>
       </form>
 
@@ -641,14 +453,10 @@
 
     <main class="main">
       <section class="hero">
-        <div>
-          <h1>Your YouTube music locker</h1>
-          <p>
-            Spotify-style layout, but YouTube-only playback. Search at the top,
-            choose a result, and it plays using the official YouTube embedded player.
-          </p>
-        </div>
-        <div class="hero-card">▶</div>
+        <h1>Your YouTube music locker</h1>
+        <p>
+          Spotify-style layout, YouTube search results, and official YouTube playback.
+        </p>
       </section>
 
       <section class="youtube-panel" id="searchArea">
@@ -658,8 +466,8 @@
         </div>
 
         <div class="ok-note">
-          This uses YouTube’s official embed player. It does not download, extract, cache,
-          or convert YouTube audio.
+          Press a result’s Play button. The app will attempt to start audio immediately.
+          On iPhone, YouTube may still require one tap inside the video player.
         </div>
 
         <div class="video-results" id="youtubeResults" style="margin-top: 14px;"></div>
@@ -678,13 +486,8 @@
           <button class="control-btn" onclick="clearPlayer()">⏹</button>
         </div>
 
-        <div class="mini-note">
-          YouTube may show ads or require a tap/click before playback. Browser pages
-          cannot safely skip or control ads inside YouTube’s iframe.
-        </div>
+        <div id="youtubeEmbedArea"></div>
       </div>
-
-      <div id="youtubeEmbedArea"></div>
     </aside>
 
     <footer class="player-bar">
@@ -707,23 +510,20 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script>
-    let youtubePlayer = null;
-    let youtubeIframe = null;
     let youtubeApiReady = false;
-    let pendingVideo = null;
-    let durationTimer = null;
+    let youtubePlayer = null;
     let currentVideoId = "";
     let currentTitle = "";
     let currentChannel = "";
+    let currentThumb = "";
+    let durationTimer = null;
+    let pendingAutoplay = false;
 
-    const menuBackdrop = document.getElementById("menuBackdrop");
-    const sideOverlay = document.getElementById("sideOverlay");
     const youtubeQuery = document.getElementById("youtubeQuery");
     const youtubeResults = document.getElementById("youtubeResults");
     const youtubeEmbedArea = document.getElementById("youtubeEmbedArea");
     const statusPill = document.getElementById("statusPill");
     const resultCount = document.getElementById("resultCount");
-
     const bigCover = document.getElementById("bigCover");
     const barCover = document.getElementById("barCover");
     const nowTitle = document.getElementById("nowTitle");
@@ -735,23 +535,8 @@
 
     window.onYouTubeIframeAPIReady = function () {
       youtubeApiReady = true;
-
-      if (pendingVideo) {
-        const video = pendingVideo;
-        pendingVideo = null;
-        playYouTube(video.id, video.title, video.channel, video.thumb);
-      }
+      statusPill.textContent = "Ready";
     };
-
-    function openMenu() {
-      menuBackdrop.classList.add("open");
-      sideOverlay.classList.add("open");
-    }
-
-    function closeMenu() {
-      menuBackdrop.classList.remove("open");
-      sideOverlay.classList.remove("open");
-    }
 
     function focusSearch() {
       document.getElementById("searchArea").scrollIntoView({
@@ -784,8 +569,8 @@
           <div class="warning">
             <strong>YouTube search failed.</strong><br>
             ${escapeHtml(err.message)}<br><br>
-            Make sure your Vercel serverless file exists at
-            <code>/api/youtube-search.js</code> and your Vercel env variable is
+            Make sure your serverless file exists at
+            <code>/api/youtube-search.js</code> and your Vercel environment variable is
             <code>YOUTUBE_API_KEY</code>.
           </div>
         `;
@@ -823,19 +608,20 @@
             <div class="track-meta">${escapeHtml(video.channel || "YouTube")} • Official player</div>
           </div>
 
-          <div class="mini-controls">
+          <div>
             <button class="small-btn primary">Play</button>
             <button class="small-btn">Open</button>
           </div>
         `;
 
-        const buttons = row.querySelectorAll("button");
+        const playBtn = row.querySelector(".primary");
+        const openBtn = row.querySelectorAll("button")[1];
 
-        buttons[0].onclick = () => {
+        playBtn.onclick = () => {
           playYouTube(video.id, video.title, video.channel || "YouTube", video.thumb || "");
         };
 
-        buttons[1].onclick = () => {
+        openBtn.onclick = () => {
           window.open(
             `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`,
             "_blank",
@@ -855,62 +641,104 @@
       currentVideoId = videoId;
       currentTitle = title;
       currentChannel = channel;
+      currentThumb = thumb;
+      pendingAutoplay = true;
 
       updateNowPlaying(title, channel, thumb);
       markPlayingRow(videoId);
 
-      if (!youtubeApiReady) {
-        pendingVideo = { id: videoId, title, channel, thumb };
-        youtubeEmbedArea.innerHTML = `<div class="gold-note">Loading YouTube player...</div>`;
-        return;
-      }
-
-      if (youtubePlayer && typeof youtubePlayer.loadVideoById === "function") {
-        youtubePlayer.loadVideoById({ videoId, startSeconds: 0 });
-        return;
-      }
-
       youtubeEmbedArea.innerHTML = `
+        <div class="gold-note" id="tapNotice">
+          Starting playback... If there is no sound, tap the YouTube player once.
+        </div>
         <div id="youtubePlayerMount"></div>
-        <button class="small-btn" style="width:100%; margin-top:10px;" onclick="openCurrentOnYouTube()">
-          Open on YouTube
-        </button>
       `;
+
+      if (!youtubeApiReady || !window.YT || !YT.Player) {
+        statusPill.textContent = "Loading player...";
+        setTimeout(() => playYouTube(videoId, title, channel, thumb), 600);
+        return;
+      }
+
+      if (youtubePlayer && typeof youtubePlayer.destroy === "function") {
+        youtubePlayer.destroy();
+        youtubePlayer = null;
+      }
 
       youtubePlayer = new YT.Player("youtubePlayerMount", {
         height: "220",
         width: "100%",
-        videoId,
+        videoId: videoId,
         playerVars: {
           autoplay: 1,
+          mute: 0,
           controls: 1,
           rel: 0,
           modestbranding: 1,
-          playsinline: 1
+          playsinline: 1,
+          enablejsapi: 1,
+          origin: window.location.origin
         },
         events: {
-          onReady: onYTReady,
+          onReady: function (event) {
+            forceStartPlayback(event.target);
+          },
           onStateChange: onYTStateChange,
           onError: onYTError
         }
       });
+
+      youtubeEmbedArea.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
     }
 
-    function onYTReady() {
-      youtubeIframe = youtubePlayer.getIframe();
-
+    function forceStartPlayback(player) {
       try {
-        youtubePlayer.playVideo();
+        player.unMute();
+        player.setVolume(100);
+        player.playVideo();
       } catch {}
 
-      playPauseBtn.textContent = "⏸";
-      startDurationPoll();
+      setTimeout(() => {
+        try {
+          player.unMute();
+          player.setVolume(100);
+          player.playVideo();
+        } catch {}
+      }, 300);
+
+      setTimeout(() => {
+        try {
+          const state = player.getPlayerState();
+
+          if (state !== YT.PlayerState.PLAYING) {
+            statusPill.textContent = "Tap player";
+            playPauseBtn.textContent = "▶";
+
+            const notice = document.getElementById("tapNotice");
+            if (notice) {
+              notice.innerHTML = `
+                iPhone/Safari blocked automatic audio. Tap the YouTube player’s play button once.
+              `;
+            }
+          }
+        } catch {}
+      }, 1400);
     }
 
     function onYTStateChange(e) {
       if (e.data === YT.PlayerState.PLAYING) {
         playPauseBtn.textContent = "⏸";
         statusPill.textContent = "Playing";
+        pendingAutoplay = false;
+
+        const notice = document.getElementById("tapNotice");
+        if (notice) {
+          notice.innerHTML = "Playing via YouTube official player.";
+        }
+
         startDurationPoll();
       }
 
@@ -924,17 +752,29 @@
         statusPill.textContent = "Ended";
         progressFill.style.width = "100%";
       }
+
+      if (e.data === YT.PlayerState.BUFFERING) {
+        statusPill.textContent = "Buffering";
+      }
     }
 
     function onYTError() {
       statusPill.textContent = "Player error";
-      barMeta.textContent = "This video cannot be embedded or played here.";
+
+      youtubeEmbedArea.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="warning">
+            This video cannot be embedded or played here. Try another result or press Open.
+          </div>
+        `
+      );
     }
 
     function togglePlay() {
       if (!youtubePlayer || typeof youtubePlayer.getPlayerState !== "function") {
         if (currentVideoId) {
-          playYouTube(currentVideoId, currentTitle, currentChannel);
+          playYouTube(currentVideoId, currentTitle, currentChannel, currentThumb);
         }
         return;
       }
@@ -944,7 +784,7 @@
       if (state === YT.PlayerState.PLAYING) {
         youtubePlayer.pauseVideo();
       } else {
-        youtubePlayer.playVideo();
+        forceStartPlayback(youtubePlayer);
       }
     }
 
@@ -952,7 +792,7 @@
       if (!youtubePlayer || typeof youtubePlayer.seekTo !== "function") return;
 
       youtubePlayer.seekTo(0, true);
-      youtubePlayer.playVideo();
+      forceStartPlayback(youtubePlayer);
     }
 
     function clearPlayer() {
@@ -963,10 +803,11 @@
       }
 
       youtubePlayer = null;
-      youtubeIframe = null;
       currentVideoId = "";
       currentTitle = "";
       currentChannel = "";
+      currentThumb = "";
+      pendingAutoplay = false;
 
       youtubeEmbedArea.innerHTML = "";
       playPauseBtn.textContent = "▶";
@@ -975,22 +816,6 @@
       updateNowPlaying("Nothing playing", "Search YouTube to start", "");
       markPlayingRow("");
       statusPill.textContent = "Stopped";
-    }
-
-    function clearResults() {
-      youtubeResults.innerHTML = "";
-      resultCount.textContent = "Search to begin";
-      statusPill.textContent = "YouTube only";
-    }
-
-    function openCurrentOnYouTube() {
-      if (!currentVideoId) return;
-
-      window.open(
-        `https://www.youtube.com/watch?v=${encodeURIComponent(currentVideoId)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
     }
 
     function updateNowPlaying(title, channel, thumb) {
@@ -1058,7 +883,7 @@
         });
 
         navigator.mediaSession.setActionHandler("play", () => {
-          if (youtubePlayer) youtubePlayer.playVideo();
+          if (youtubePlayer) forceStartPlayback(youtubePlayer);
         });
 
         navigator.mediaSession.setActionHandler("pause", () => {
@@ -1066,7 +891,6 @@
         });
 
         navigator.mediaSession.setActionHandler("previoustrack", restartVideo);
-        navigator.mediaSession.setActionHandler("nexttrack", null);
       } catch {}
     }
 
@@ -1083,7 +907,6 @@
       return escapeHtml(value).replaceAll("`", "&#096;");
     }
 
-    // Optional wake lock for mobile/Chrome where supported.
     async function requestWakeLock() {
       if (!("wakeLock" in navigator)) return;
 
@@ -1093,13 +916,6 @@
     }
 
     document.addEventListener("click", requestWakeLock, { once: true });
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
-        requestWakeLock();
-      }
-    });
-
     youtubeQuery.focus();
   </script>
 </body>
