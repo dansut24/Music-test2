@@ -380,11 +380,8 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
     let ytDurationInterval = null;
 
     function onYTReady(e) {
-      e.target.playVideo();
-      playPauseBtn.textContent = "⏸";
-      youtubeIsPlaying = true;
+      // Player is ready — playback starts via user gesture on the overlay button
       youtubeIframe = youtubePlayer.getIframe();
-      startDurationPoll();
     }
 
     function onYTStateChange(e) {
@@ -423,21 +420,38 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
       return m + ":" + (s < 10 ? "0" : "") + s;
     }
 
-    function createYTPlayer(videoId) {
-      // If a player already exists, just load the new video — much faster than destroy+recreate
-      if (youtubePlayer && typeof youtubePlayer.loadVideoById === "function") {
-        // Pass startSeconds so the API auto-plays once buffered — calling playVideo()
-        // immediately after loadVideoById() races against the async load and loses.
-        youtubePlayer.loadVideoById({ videoId: videoId, startSeconds: 0 });
-        youtubeIframe = youtubePlayer.getIframe();
-        // onYTStateChange will fire PLAYING and update the UI once it actually starts
-        return;
-      }
+    function showPlayOverlay(videoId) {
+      // Remove any existing overlay
+      var existing = document.getElementById("ytPlayOverlay");
+      if (existing) existing.remove();
 
-      // First time: create a mount div and initialise the player
-      const container = document.createElement("div");
+      var overlay = document.createElement("div");
+      overlay.id = "ytPlayOverlay";
+      overlay.style.cssText = "position:relative;width:100%;height:240px;background:#000;border-radius:12px;display:grid;place-items:center;cursor:pointer;margin-bottom:8px;";
+      overlay.innerHTML = '<div style="width:72px;height:72px;background:#1db954;border-radius:50%;display:grid;place-items:center;font-size:28px;color:#000;box-shadow:0 4px 24px rgba(29,185,84,0.5);">&#9654;</div><div style="position:absolute;bottom:12px;color:#aaa;font-size:13px;">Click to play</div>';
+      overlay.onclick = function() {
+        overlay.remove();
+        startKeepalive(); // must be called inside a real user gesture
+        if (youtubePlayer && typeof youtubePlayer.loadVideoById === "function") {
+          youtubePlayer.loadVideoById({ videoId: videoId, startSeconds: 0 });
+        } else {
+          createYTPlayerInner(videoId);
+        }
+      };
+
+      // Insert before the player mount
+      var mount = document.getElementById("youtubePlayerMount");
+      if (mount) {
+        youtubeEmbedArea.insertBefore(overlay, mount);
+      } else {
+        youtubeEmbedArea.prepend(overlay);
+      }
+    }
+
+    function createYTPlayerInner(videoId) {
+      var container = document.createElement("div");
       container.id = "youtubePlayerMount";
-      youtubeEmbedArea.prepend(container);
+      youtubeEmbedArea.appendChild(container);
 
       youtubePlayer = new YT.Player("youtubePlayerMount", {
         height: "240",
@@ -453,10 +467,27 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
           origin: location.origin
         },
         events: {
-          onReady: onYTReady,
+          onReady: function(e) {
+            l && l("onReady");
+            e.target.playVideo();
+            youtubeIframe = youtubePlayer.getIframe();
+            playPauseBtn.textContent = "⏸";
+            youtubeIsPlaying = true;
+            startDurationPoll();
+          },
           onStateChange: onYTStateChange
         }
       });
+    }
+
+    function createYTPlayer(videoId) {
+      // If player already exists, just swap the video — user gesture already happened
+      if (youtubePlayer && typeof youtubePlayer.loadVideoById === "function") {
+        showPlayOverlay(videoId);
+        return;
+      }
+      // First time — show overlay, clicking it triggers player creation with user gesture
+      showPlayOverlay(videoId);
     }
 
     const fileInput = document.getElementById("fileInput");
@@ -957,9 +988,16 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
     let keepaliveStarted = false;
 
     function startKeepalive() {
-      if (keepaliveStarted) return;
       try {
-        keepaliveCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!keepaliveCtx) {
+          keepaliveCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        // Resume if suspended (browser may suspend after inactivity)
+        if (keepaliveCtx.state === "suspended") {
+          keepaliveCtx.resume();
+        }
+        if (keepaliveStarted) return;
+        // One second of silence, looping — keeps audio thread alive in background
         const buf = keepaliveCtx.createBuffer(1, keepaliveCtx.sampleRate, keepaliveCtx.sampleRate);
         const src = keepaliveCtx.createBufferSource();
         src.buffer = buf;
@@ -967,11 +1005,19 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
         src.connect(keepaliveCtx.destination);
         src.start();
         keepaliveStarted = true;
-      } catch(e) {}
+      } catch(e) { console.warn("Keepalive failed:", e); }
     }
 
-    document.addEventListener("click", startKeepalive, { once: true });
-    document.addEventListener("keydown", startKeepalive, { once: true });
+    // Also hook every user interaction to resume a suspended context
+    document.addEventListener("click", startKeepalive);
+    document.addEventListener("keydown", startKeepalive);
+
+    // Re-kick on visibility change — browser may suspend AudioContext on tab switch
+    document.addEventListener("visibilitychange", function() {
+      if (document.visibilityState === "visible" && keepaliveCtx && keepaliveCtx.state === "suspended") {
+        keepaliveCtx.resume();
+      }
+    });
 
     // Keep page alive — request a wake lock if supported (Android Chrome, desktop Chrome)
     async function requestWakeLock() {
@@ -983,7 +1029,9 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
     }
     requestWakeLock();
     document.addEventListener("visibilitychange", function() {
-      if (document.visibilityState === "visible") requestWakeLock();
+      if (document.visibilityState === "visible") {
+        requestWakeLock();
+      }
     });
   </script>
 
