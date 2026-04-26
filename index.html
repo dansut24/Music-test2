@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Music Locker</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --panel: #141418;
+      --panel-soft: #1d1d24;
+      --accent: #1db954;
+      --accent-soft: rgba(29, 185, 84, 0.16);
+      --text: #f5f5f5;
+      --muted: #a1a1aa;
+      --border: rgba(255, 255, 255, 0.08);
+      --danger: #ff5c7a;
+      --gold: #ffd166;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #12351f, #09090b 38%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 1fr 370px;
+      grid-template-rows: 74px 1fr 104px;
+      height: 100vh;
+    }
+
+    .top-nav {
+      grid-column: 1 / 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 22px;
+      background: rgba(8, 8, 10, 0.82);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+      z-index: 20;
+    }
+
+    .nav-left { display: flex; align-items: center; gap: 14px; }
+
+    .hamburger {
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+
+    .hamburger span,
+    .hamburger span::before,
+    .hamburger span::after {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 999px;
+      content: "";
+      position: relative;
+      transition: 0.2s ease;
+    }
+
+    .hamburger span::before { position: absolute; top: -7px; }
+    .hamburger span::after { position: absolute; top: 7px; }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 900; white-space: nowrap; }
+
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #7cf7a8);
+      display: grid;
+      place-items: center;
+      color: #07110b;
+    }
+
+    .menu-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: 0.2s ease; z-index: 40; }
+    .menu-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .side-overlay {
+      position: fixed; top: 0; left: 0; height: 100vh; width: min(86vw, 340px);
+      background: rgba(12, 12, 15, 0.96); border-right: 1px solid var(--border);
+      transform: translateX(-105%); transition: transform 0.24s ease; z-index: 50;
+      padding: 22px; display: flex; flex-direction: column; gap: 22px; box-shadow: 24px 0 80px rgba(0,0,0,0.45);
+    }
+    .side-overlay.open { transform: translateX(0); }
+    .overlay-head { display: flex; justify-content: space-between; align-items: center; }
+
+    .close-menu { width: 40px; height: 40px; border-radius: 14px; border: 1px solid var(--border); background: var(--panel-soft); color: var(--text); cursor: pointer; font-size: 20px; }
+
+    .nav, .playlist, .library-actions { display: grid; gap: 8px; }
+    .nav button, .playlist button, .primary-btn, .ghost-btn {
+      border: 0; color: var(--text); border-radius: 14px; padding: 12px 14px; cursor: pointer; font-weight: 800; text-align: left;
+    }
+    .nav button, .playlist button, .ghost-btn { background: transparent; }
+    .nav button.active, .nav button:hover, .playlist button:hover, .ghost-btn:hover { background: var(--panel-soft); }
+    .primary-btn { background: var(--accent); color: #061008; text-align: center; }
+    .ghost-btn { border: 1px solid var(--border); text-align: center; }
+
+    .playlist-title { color: var(--muted); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 8px 0; }
+
+    .top-search {
+      flex: 1; max-width: 800px; display: flex; gap: 10px; background: rgba(255, 255, 255, 0.08);
+      padding: 8px; border-radius: 999px; border: 1px solid var(--border);
+    }
+
+    .top-search input { flex: 1; background: transparent; border: 0; outline: 0; color: var(--text); padding: 0 12px; font-size: 15px; min-width: 0; }
+    .top-search button, .pill-btn { border: 0; border-radius: 999px; padding: 10px 14px; background: var(--accent); color: #061008; font-weight: 900; cursor: pointer; white-space: nowrap; }
+
+    .main { padding: 24px; overflow: auto; }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(29, 185, 84, 0.34), rgba(255, 255, 255, 0.06));
+      border: 1px solid var(--border); border-radius: 28px; padding: 28px;
+      display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; margin-bottom: 24px;
+    }
+    .hero h1 { font-size: clamp(30px, 5vw, 58px); line-height: 0.95; margin: 0 0 12px; }
+    .hero p { color: var(--muted); margin: 0; max-width: 780px; }
+    .hero-card { width: 160px; height: 160px; border-radius: 34px; background: linear-gradient(145deg, #1db954, #0b5427); display: grid; place-items: center; font-size: 58px; box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px; }
+    .route-card { background: rgba(255, 255, 255, 0.055); border: 1px solid var(--border); border-radius: 22px; padding: 16px; min-height: 120px; }
+    .route-card strong { display: block; margin-bottom: 8px; }
+    .route-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px; gap: 12px; }
+    .section-head h2 { margin: 0; }
+    .section-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .tracks, .preview-results, .video-results { display: grid; gap: 8px; }
+
+    .track, .preview-item, .video-item {
+      display: grid; align-items: center; gap: 12px; padding: 10px; border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045); border: 1px solid transparent;
+    }
+    .track { grid-template-columns: 46px 1fr 90px 44px; cursor: pointer; }
+    .preview-item { grid-template-columns: 54px 1fr auto; }
+    .video-item { grid-template-columns: 96px 1fr auto; }
+
+    .track:hover, .track.playing, .preview-item:hover, .video-item:hover { background: var(--accent-soft); border-color: rgba(29, 185, 84, 0.35); }
+
+    .cover-small, .artwork, .thumb {
+      border-radius: 12px; background: linear-gradient(135deg, #2dd36f, #253d2c); display: grid; place-items: center; overflow: hidden; flex: 0 0 auto;
+    }
+    .cover-small { width: 46px; height: 46px; }
+    .artwork { width: 54px; height: 54px; }
+    .thumb { width: 96px; height: 54px; background: #000; }
+    .artwork img, .cover-small img, .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    .track-title { font-weight: 900; }
+    .track-meta, .duration, .muted { color: var(--muted); font-size: 13px; }
+    .mini-controls { display: flex; gap: 8px; align-items: center; }
+    .small-btn { border: 1px solid var(--border); background: var(--panel-soft); color: var(--text); padding: 9px 11px; border-radius: 12px; cursor: pointer; font-weight: 800; white-space: nowrap; }
+    .small-btn.primary { background: var(--accent); color: #061008; border: 0; }
+
+    .right-panel { padding: 24px 20px; background: rgba(12, 12, 15, 0.88); border-left: 1px solid var(--border); overflow: auto; }
+    .now-playing-card, .web-search-panel, .preview-panel, .youtube-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 28px; padding: 18px; }
+    .web-search-panel, .preview-panel, .youtube-panel { margin-top: 18px; border-radius: 22px; background: rgba(255, 255, 255, 0.05); }
+
+    .big-cover { aspect-ratio: 1; border-radius: 24px; background: linear-gradient(145deg, #1db954, #13351f 65%, #0f0f13); display: grid; place-items: center; font-size: 82px; margin-bottom: 18px; overflow: hidden; }
+    .big-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .now-title { font-size: 24px; font-weight: 950; margin-bottom: 4px; }
+
+    .controls { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 18px 0; }
+    .control-btn { width: 44px; height: 44px; border-radius: 999px; border: 0; cursor: pointer; background: var(--panel-soft); color: var(--text); font-size: 17px; }
+    .control-btn.play { width: 56px; height: 56px; background: var(--accent); color: #061008; font-weight: 900; }
+
+    input, select { width: 100%; background: #0d0d11; border: 1px solid var(--border); color: var(--text); border-radius: 14px; padding: 12px; margin: 10px 0; }
+    .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .web-search-panel button, .preview-panel button, .youtube-panel button { width: 100%; border: 0; border-radius: 14px; padding: 12px; background: var(--accent); color: #061008; font-weight: 900; cursor: pointer; margin-top: 8px; }
+    button.secondary { background: var(--panel-soft) !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
+
+    .warning, .gold-note, .ok-note { color: #ffd1da; background: rgba(255, 92, 122, 0.12); border: 1px solid rgba(255, 92, 122, 0.28); border-radius: 16px; padding: 10px; font-size: 12px; line-height: 1.45; margin-top: 10px; }
+    .gold-note { color: #ffe9ad; background: rgba(255, 209, 102, 0.11); border-color: rgba(255, 209, 102, 0.25); }
+    .ok-note { color: #b9ffd0; background: rgba(29,185,84,0.10); border-color: rgba(29,185,84,0.26); }
+    .mini-note { color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+    .player-bar { grid-column: 1 / 3; background: rgba(8, 8, 10, 0.96); border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; gap: 18px; padding: 12px 24px; }
+    .bar-track { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    audio { width: 100%; accent-color: var(--accent); }
+    .status-pill { background: var(--accent-soft); color: #9ef7bf; padding: 9px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; white-space: nowrap; }
+
+    iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; background: #000; }
+    #embedArea:empty, #youtubeEmbedArea:empty { display: none; }
+
+    @media (max-width: 1120px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .app { grid-template-columns: 1fr; grid-template-rows: 74px 1fr auto auto; }
+      .top-nav { grid-column: 1; }
+      .right-panel { grid-column: 1; border-left: 0; border-top: 1px solid var(--border); }
+      .player-bar { grid-column: 1; grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      body { overflow: auto; }
+      .app { display: block; height: auto; }
+      .top-nav { position: sticky; top: 0; }
+      .brand span { display: none; }
+      .top-search button { display: none; }
+      .main, .right-panel { padding: 16px; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-card { display: none; }
+      .track { grid-template-columns: 42px 1fr 44px; }
+      .preview-item, .video-item { grid-template-columns: 1fr; }
+      .thumb { width: 100%; height: auto; aspect-ratio: 16 / 9; }
+      .mini-controls { grid-column: 1 / -1; }
+      .duration { display: none; }
+      .player-bar { position: sticky; bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="menu-backdrop" id="menuBackdrop" onclick="closeMenu()"></div>
+
+  <aside class="side-overlay" id="sideOverlay">
+    <div class="overlay-head">
+      <div class="brand"><div class="logo">♪</div><span>My Locker</span></div>
+      <button class="close-menu" onclick="closeMenu()">×</button>
+    </div>
+
+    <nav class="nav">
+      <button class="active" onclick="focusLibrary(); closeMenu();">🏠 Home</button>
+      <button onclick="focusLibrary(); closeMenu();">📁 Local Files</button>
+      <button onclick="focusPreviewSearch(); closeMenu();">🎧 Preview Search</button>
+      <button onclick="focusYouTubeSearch(); closeMenu();">▶️ YouTube</button>
+      <button onclick="focusWebSearch(); closeMenu();">🌐 Web / Embeds</button>
+      <button onclick="closeMenu()">⬇️ Offline</button>
+    </nav>
+
+    <div class="library-actions">
+      <label class="primary-btn" for="fileInput">Import Music</label>
+      <input id="fileInput" type="file" multiple accept="audio/*" hidden />
+      <button class="ghost-btn" onclick="addDemoSongs(); closeMenu();">Add Demo Tracks</button>
+      <button class="ghost-btn" onclick="clearOfflineLibrary(); closeMenu();">Clear Offline Library</button>
+    </div>
+  </aside>
+
+  <div class="app">
+    <header class="top-nav">
+      <div class="nav-left">
+        <button class="hamburger" onclick="openMenu()" aria-label="Open menu"><span></span></button>
+        <div class="brand"><div class="logo">♪</div><span>My Locker</span></div>
+      </div>
+
+      <div class="top-search">
+        <input id="librarySearch" placeholder="Search your library..." oninput="renderSongs()" />
+        <button onclick="focusYouTubeSearch()">YouTube</button>
+      </div>
+
+      <div class="status-pill" id="offlineStatus">Offline DB loading</div>
+    </header>
+
+    <main class="main" id="libraryArea">
+      <section class="hero">
+        <div>
+          <h1>Your personal music app</h1>
+          <p>Full offline playback from imported files, legal preview discovery from iTunes/Deezer, and official YouTube embedded playback for videos.</p>
+        </div>
+        <div class="hero-card">♫</div>
+      </section>
+
+      <section class="cards-grid">
+        <div class="route-card"><strong>1. Full songs offline</strong><p>Imported files are stored in IndexedDB as audio blobs, so they remain after refresh and can work offline in the browser.</p></div>
+        <div class="route-card"><strong>2. Music discovery</strong><p>iTunes and Deezer previews are legal discovery layers. Save previews to your library or open official links.</p></div>
+        <div class="route-card"><strong>3. YouTube videos</strong><p>Search and embed using YouTube’s official player. No stream extraction, no MP3 conversion, no offline YouTube caching.</p></div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>Offline Library</h2>
+          <div class="section-actions">
+            <span class="muted" id="trackCount">0 tracks</span>
+            <button class="small-btn" onclick="focusPreviewSearch()">Search previews</button>
+          </div>
+        </div>
+        <div class="tracks" id="songList"></div>
+      </section>
+
+      <section class="preview-panel" id="previewSearchPanel">
+        <strong>Search legal previews</strong>
+        <p class="mini-note">Try “Justin Bieber”, “Ariana Grande”, or any artist/song. iTunes and Deezer usually return 30-second previews, artwork and links.</p>
+        <select id="previewProvider"><option value="both">iTunes + Deezer</option><option value="itunes">iTunes only</option><option value="deezer">Deezer only</option></select>
+        <input id="previewQuery" placeholder="Search artist, song, album..." />
+        <div class="button-row"><button onclick="searchPreviews()">Search previews</button><button class="secondary" onclick="clearPreviewResults()">Clear</button></div>
+        <div class="gold-note">Preview results are for discovery. For full offline playback, import files you own or use licensed/direct sources.</div>
+        <div class="preview-results" id="previewResults" style="margin-top: 12px;"></div>
+      </section>
+
+      <section class="youtube-panel" id="youtubeSearchPanel">
+        <strong>YouTube video search</strong>
+        <p class="mini-note">This uses official embedded playback. For a real deployment, add a YouTube Data API key or a small backend endpoint that calls YouTube search.</p>
+        <input id="youtubeQuery" placeholder="Search YouTube videos, e.g. Justin Bieber official video" />
+        <div class="button-row"><button onclick="searchYouTubeMockOrApi()">Search YouTube</button><button class="secondary" onclick="clearYouTubeResults()">Clear</button></div>
+        <div class="ok-note">Legal route: search video metadata, then play using YouTube’s embedded player. Do not download, extract audio, or cache YouTube media offline.</div>
+        <div class="video-results" id="youtubeResults" style="margin-top: 12px;"></div>
+      </section>
+    </main>
+
+    <aside class="right-panel">
+      <div class="now-playing-card">
+        <div class="big-cover" id="bigCover">♫</div>
+        <div class="now-title" id="nowTitle">Nothing playing</div>
+        <div class="muted" id="nowArtist">Import a song, search previews, or embed YouTube</div>
+        <div class="controls"><button class="control-btn" onclick="previousSong()">⏮</button><button class="control-btn play" onclick="togglePlay()" id="playPauseBtn">▶</button><button class="control-btn" onclick="nextSong()">⏭</button></div>
+        <div class="mini-note">Background playback depends on browser support. Native wrappers give stronger iOS/Android background audio later.</div>
+      </div>
+
+      <div id="youtubeEmbedArea"></div>
+
+      <div class="web-search-panel" id="webSearchPanel">
+        <strong>Web search / official embeds</strong>
+        <p class="mini-note">Search official pages or embed supported YouTube/SoundCloud URLs. Direct audio URL playback is for legal MP3/radio/podcast/public-domain streams.</p>
+        <select id="searchProvider"><option value="web">Web: legal audio sources</option><option value="youtube">YouTube</option><option value="soundcloud">SoundCloud</option><option value="spotify">Spotify</option><option value="archive">Internet Archive audio</option></select>
+        <input id="webQuery" placeholder="Song, artist, URL, podcast, radio stream..." />
+        <div class="button-row"><button onclick="searchWebProvider()">Search</button><button class="secondary" onclick="tryOfficialEmbed()">Embed URL</button></div>
+        <button class="secondary" onclick="tryPlayUrl()">Try Play Direct Audio URL</button>
+        <div id="embedArea"></div>
+        <div class="warning">YouTube/SoundCloud/Spotify extraction is intentionally not included. Use official embeds/pages, imported files, or licensed direct audio URLs.</div>
+      </div>
+    </aside>
+
+    <footer class="player-bar">
+      <div class="bar-track"><div class="cover-small" id="barCover">♫</div><div><div class="track-title" id="barTitle">Nothing playing</div><div class="track-meta" id="barMeta">Ready</div></div></div>
+      <audio id="audioPlayer" controls></audio>
+      <div class="muted">IndexedDB offline • Legal previews • YouTube embeds</div>
+    </footer>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    const DB_NAME = "my-music-locker-db";
+    const DB_VERSION = 1;
+    const STORE = "tracks";
+    const YOUTUBE_API_KEY = "AIzaSyDyzoRFRm2TQHdmJ8GQBn-1GHI9op92tdg"; // Browser-exposed test key. For production, move this to a backend/Vercel API route.
+    let youtubePlayer = null;
+    let youtubeIframe = null;
+    let youtubeIsPlaying = false;
+    let activePlayerType = "audio";
+
+    const fileInput = document.getElementById("fileInput");
+    const songList = document.getElementById("songList");
+    const audioPlayer = document.getElementById("audioPlayer");
+    const librarySearch = document.getElementById("librarySearch");
+    const trackCount = document.getElementById("trackCount");
+    const nowTitle = document.getElementById("nowTitle");
+    const nowArtist = document.getElementById("nowArtist");
+    const barTitle = document.getElementById("barTitle");
+    const barMeta = document.getElementById("barMeta");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const webQuery = document.getElementById("webQuery");
+    const embedArea = document.getElementById("embedArea");
+    const sideOverlay = document.getElementById("sideOverlay");
+    const menuBackdrop = document.getElementById("menuBackdrop");
+    const previewQuery = document.getElementById("previewQuery");
+    const previewResults = document.getElementById("previewResults");
+    const bigCover = document.getElementById("bigCover");
+    const barCover = document.getElementById("barCover");
+    const offlineStatus = document.getElementById("offlineStatus");
+    const youtubeResults = document.getElementById("youtubeResults");
+    const youtubeQuery = document.getElementById("youtubeQuery");
+    const youtubeEmbedArea = document.getElementById("youtubeEmbedArea");
+
+    let db = null;
+    let songs = [];
+    let currentIndex = -1;
+    let currentObjectUrl = null;
+
+    function openMenu() { sideOverlay.classList.add("open"); menuBackdrop.classList.add("open"); }
+    function closeMenu() { sideOverlay.classList.remove("open"); menuBackdrop.classList.remove("open"); }
+    function focusLibrary() { document.getElementById("libraryArea").scrollIntoView({ behavior: "smooth" }); }
+    function focusPreviewSearch() { document.getElementById("previewSearchPanel").scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => previewQuery.focus(), 250); }
+    function focusYouTubeSearch() { document.getElementById("youtubeSearchPanel").scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => youtubeQuery.focus(), 250); }
+    function focusWebSearch() { webQuery.focus(); document.getElementById("webSearchPanel").scrollIntoView({ behavior: "smooth", block: "center" }); }
+
+    function openDb() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          const database = req.result;
+          if (!database.objectStoreNames.contains(STORE)) database.createObjectStore(STORE, { keyPath: "id" });
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function init() {
+      try {
+        db = await openDb();
+        songs = await getAllTracks();
+        offlineStatus.textContent = "Offline DB ready";
+        renderSongs();
+      } catch (err) {
+        offlineStatus.textContent = "Offline DB unavailable";
+        renderSongs();
+      }
+    }
+
+    function tx(mode = "readonly") { return db.transaction(STORE, mode).objectStore(STORE); }
+
+    function getAllTracks() {
+      return new Promise((resolve, reject) => {
+        const req = tx().getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function putTrack(track) {
+      return new Promise((resolve, reject) => {
+        const req = tx("readwrite").put(track);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function clearTracks() {
+      return new Promise((resolve, reject) => {
+        const req = tx("readwrite").clear();
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    fileInput.addEventListener("change", async event => {
+      const files = Array.from(event.target.files || []);
+      for (const file of files) {
+        const track = { id: crypto.randomUUID(), title: cleanTitle(file.name), artist: "Local file", source: "IndexedDB offline", duration: "--:--", artwork: "", blob: file, mime: file.type || "audio/mpeg", createdAt: Date.now() };
+        songs.push(track);
+        if (db) await putTrack(track);
+      }
+      renderSongs();
+      offlineStatus.textContent = `${songs.length} offline track${songs.length === 1 ? "" : "s"}`;
+    });
+
+    audioPlayer.addEventListener("play", () => { activePlayerType = "audio"; playPauseBtn.textContent = "⏸"; updateMediaSession(); });
+    audioPlayer.addEventListener("pause", () => { playPauseBtn.textContent = "▶"; });
+    audioPlayer.addEventListener("ended", nextSong);
+
+    function cleanTitle(name) { return name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "); }
+
+    async function clearOfflineLibrary() {
+      if (db) await clearTracks();
+      songs = [];
+      currentIndex = -1;
+      audioPlayer.removeAttribute("src");
+      updateNowPlaying({ title: "Nothing playing", artist: "Library cleared", source: "", duration: "", artwork: "" });
+      renderSongs();
+      offlineStatus.textContent = "Offline library cleared";
+    }
+
+    function addDemoSongs() {
+      songs = [...songs,
+        { id: crypto.randomUUID(), title: "Midnight Drive", artist: "Demo Artist", source: "Demo", duration: "3:12", url: "", artwork: "" },
+        { id: crypto.randomUUID(), title: "Green Room", artist: "Local Concept", source: "Demo", duration: "2:48", url: "", artwork: "" },
+        { id: crypto.randomUUID(), title: "Offline Skies", artist: "Personal Library", source: "Demo", duration: "4:05", url: "", artwork: "" }
+      ];
+      renderSongs();
+    }
+
+    function renderSongs() {
+      const query = librarySearch.value.trim().toLowerCase();
+      const filtered = songs.map((song, originalIndex) => ({ song, originalIndex })).filter(({ song }) => song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query));
+      trackCount.textContent = `${songs.length} track${songs.length === 1 ? "" : "s"}`;
+      songList.innerHTML = "";
+      if (!filtered.length) { songList.innerHTML = `<div class="muted">No tracks yet. Import music, search previews, or add demo tracks.</div>`; return; }
+      filtered.forEach(({ song, originalIndex }) => {
+        const item = document.createElement("div");
+        item.className = `track ${originalIndex === currentIndex ? "playing" : ""}`;
+        item.innerHTML = `<div class="cover-small">${song.artwork ? `<img src="${escapeAttr(song.artwork)}" alt="">` : "♫"}</div><div><div class="track-title">${escapeHtml(song.title)}</div><div class="track-meta">${escapeHtml(song.artist)} • ${escapeHtml(song.source)}</div></div><div class="duration">${escapeHtml(song.duration)}</div><div>▶</div>`;
+        item.onclick = () => playSong(originalIndex);
+        songList.appendChild(item);
+      });
+    }
+
+    function playSong(index) {
+      currentIndex = index;
+      const song = songs[index];
+      updateNowPlaying(song);
+      if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+      if (song.blob) {
+        currentObjectUrl = URL.createObjectURL(song.blob);
+        audioPlayer.src = currentObjectUrl;
+        audioPlayer.play().catch(() => { barMeta.textContent = "Browser blocked autoplay. Press play."; });
+      } else if (song.url) {
+        audioPlayer.src = song.url;
+        audioPlayer.play().catch(() => { barMeta.textContent = "Browser blocked autoplay. Press play."; });
+      } else {
+        audioPlayer.removeAttribute("src");
+        barMeta.textContent = "Demo track only — import a real file to play.";
+      }
+      renderSongs();
+      updateMediaSession();
+    }
+
+    function updateNowPlaying(song) {
+      nowTitle.textContent = song.title;
+      nowArtist.textContent = song.source ? `${song.artist} • ${song.source}` : song.artist;
+      barTitle.textContent = song.title;
+      barMeta.textContent = song.duration ? `${song.artist} • ${song.duration}` : song.artist;
+      bigCover.innerHTML = song.artwork ? `<img src="${escapeAttr(song.artwork)}" alt="">` : "♫";
+      barCover.innerHTML = song.artwork ? `<img src="${escapeAttr(song.artwork)}" alt="">` : "♫";
+    }
+
+    function togglePlay() {
+      if (activePlayerType === "youtube") {
+        if (!youtubeIframe) return;
+
+        if (youtubeIsPlaying) {
+          sendYouTubeCommand("pauseVideo");
+          youtubeIsPlaying = false;
+          playPauseBtn.textContent = "▶";
+        } else {
+          sendYouTubeCommand("playVideo");
+          youtubeIsPlaying = true;
+          playPauseBtn.textContent = "⏸";
+        }
+        return;
+      }
+
+      if (!audioPlayer.src && currentIndex === -1 && songs.length) return playSong(0);
+      if (audioPlayer.paused) audioPlayer.play(); else audioPlayer.pause();
+    }
+    function previousSong() {
+      if (activePlayerType === "youtube" && youtubeIframe) {
+        sendYouTubeCommand("seekTo", [0, true]);
+        sendYouTubeCommand("playVideo");
+        youtubeIsPlaying = true;
+        playPauseBtn.textContent = "⏸";
+        return;
+      }
+      if (songs.length) playSong(currentIndex <= 0 ? songs.length - 1 : currentIndex - 1);
+    }
+
+    function nextSong() {
+      if (activePlayerType === "youtube") return;
+      if (songs.length) playSong(currentIndex >= songs.length - 1 ? 0 : currentIndex + 1);
+    }
+
+    async function searchPreviews() {
+      const query = previewQuery.value.trim(); const provider = document.getElementById("previewProvider").value; if (!query) return;
+      previewResults.innerHTML = `<div class="muted">Searching previews...</div>`;
+      const tasks = [];
+      if (provider === "both" || provider === "itunes") tasks.push(searchITunes(query));
+      if (provider === "both" || provider === "deezer") tasks.push(searchDeezer(query));
+      try { renderPreviewResults((await Promise.all(tasks)).flat().filter(Boolean)); }
+      catch { previewResults.innerHTML = `<div class="warning">Preview search failed. In production, use a small backend proxy if an API blocks browser requests.</div>`; }
+    }
+
+    async function searchITunes(query) {
+      const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=12`);
+      const data = await res.json();
+      return (data.results || []).map(item => ({ provider: "iTunes", title: item.trackName || "Unknown track", artist: item.artistName || "Unknown artist", album: item.collectionName || "", previewUrl: item.previewUrl || "", artwork: (item.artworkUrl100 || "").replace("100x100", "300x300"), externalUrl: item.trackViewUrl || item.collectionViewUrl || "" }));
+    }
+
+    async function searchDeezer(query) {
+      const data = await jsonp(`https://api.deezer.com/search?q=${encodeURIComponent(query)}&limit=12&output=jsonp`);
+      return (data.data || []).map(item => ({ provider: "Deezer", title: item.title || "Unknown track", artist: item.artist?.name || "Unknown artist", album: item.album?.title || "", previewUrl: item.preview || "", artwork: item.album?.cover_medium || item.album?.cover_big || "", externalUrl: item.link || "" }));
+    }
+
+    function jsonp(url) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `jsonp_${Date.now()}_${Math.round(Math.random() * 100000)}`;
+        const script = document.createElement("script");
+        script.src = `${url}${url.includes("?") ? "&" : "?"}callback=${callbackName}`;
+        script.onerror = reject;
+        window[callbackName] = data => { delete window[callbackName]; script.remove(); resolve(data); };
+        document.body.appendChild(script);
+      });
+    }
+
+    function renderPreviewResults(results) {
+      if (!results.length) { previewResults.innerHTML = `<div class="muted">No previews found.</div>`; return; }
+      previewResults.innerHTML = "";
+      results.forEach(result => {
+        const row = document.createElement("div"); row.className = "preview-item";
+        row.innerHTML = `<div class="artwork">${result.artwork ? `<img src="${escapeAttr(result.artwork)}" alt="">` : "♫"}</div><div><div class="track-title">${escapeHtml(result.title)}</div><div class="track-meta">${escapeHtml(result.artist)} ${result.album ? "• " + escapeHtml(result.album) : ""} • ${escapeHtml(result.provider)} preview</div></div><div class="mini-controls"><button class="small-btn primary">Preview</button><button class="small-btn">Save</button><button class="small-btn">Open</button></div>`;
+        const [previewBtn, saveBtn, openBtn] = row.querySelectorAll("button");
+        previewBtn.onclick = () => playPreview(result); saveBtn.onclick = () => savePreviewToLibrary(result); openBtn.onclick = () => result.externalUrl ? window.open(result.externalUrl, "_blank", "noopener,noreferrer") : null;
+        previewResults.appendChild(row);
+      });
+    }
+
+    function playPreview(result) { if (!result.previewUrl) return alert("No preview URL available."); updateNowPlaying({ title: result.title, artist: result.artist, source: `${result.provider} preview`, duration: "Preview", url: result.previewUrl, artwork: result.artwork }); audioPlayer.src = result.previewUrl; audioPlayer.play(); }
+    function savePreviewToLibrary(result) { songs.unshift({ id: crypto.randomUUID(), title: result.title, artist: result.artist, source: `${result.provider} preview`, duration: "Preview", url: result.previewUrl, artwork: result.artwork }); renderSongs(); }
+    function clearPreviewResults() { previewResults.innerHTML = ""; }
+
+    async function searchYouTubeMockOrApi() {
+      const query = youtubeQuery.value.trim();
+      if (!query) return;
+
+      youtubeResults.innerHTML = `<div class="muted">Searching YouTube...</div>`;
+
+      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_DATA_API_KEY_HERE") {
+        youtubeResults.innerHTML = `
+          <div class="warning">
+            Add a YouTube Data API key to <strong>YOUTUBE_API_KEY</strong> to enable real YouTube search. For production, use a backend proxy so the key is not exposed in browser code.
+          </div>
+          <div class="video-item">
+            <div class="thumb"><img src="https://img.youtube.com/vi/kffacxfA7G4/hqdefault.jpg" alt=""></div>
+            <div><div class="track-title">Example YouTube result</div><div class="track-meta">Demo result • Add API key for real search</div></div>
+            <div class="mini-controls"><button class="small-btn primary" onclick="embedYouTube('kffacxfA7G4','Example YouTube result','Demo result')">▶ Play</button></div>
+          </div>`;
+        return;
+      }
+
+      try {
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&safeSearch=none&maxResults=12&q=${encodeURIComponent(query)}&key=${encodeURIComponent(YOUTUBE_API_KEY)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data?.error?.message || "YouTube search failed");
+        }
+
+        const results = (data.items || []).map(item => ({
+          id: item.id.videoId,
+          title: item.snippet.title,
+          channel: item.snippet.channelTitle,
+          thumb: item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url || ""
+        }));
+
+        renderYouTubeResults(results);
+      } catch (err) {
+        youtubeResults.innerHTML = `<div class="warning">YouTube search failed: ${escapeHtml(err.message)}. Check your API key, quota, and allowed referrers.</div>`;
+      }
+    }
+
+    function renderYouTubeResults(results) {
+      if (!results.length) { youtubeResults.innerHTML = `<div class="muted">No YouTube videos found.</div>`; return; }
+      youtubeResults.innerHTML = "";
+      results.forEach(video => {
+        const row = document.createElement("div"); row.className = "video-item";
+        row.innerHTML = `<div class="thumb">${video.thumb ? `<img src="${escapeAttr(video.thumb)}" alt="">` : "▶"}</div><div><div class="track-title">${escapeHtml(video.title)}</div><div class="track-meta">${escapeHtml(video.channel)} • YouTube official player</div></div><div class="mini-controls"><button class="small-btn primary">▶ Play</button><button class="small-btn">Open</button></div>`;
+        const [embedBtn, openBtn] = row.querySelectorAll("button");
+        embedBtn.onclick = () => embedYouTube(video.id, video.title, video.channel);
+        openBtn.onclick = () => window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`, "_blank", "noopener,noreferrer");
+        youtubeResults.appendChild(row);
+      });
+    }
+
+    function embedYouTube(videoId, title = "YouTube video", channel = "Official embedded player") {
+      audioPlayer.pause();
+      activePlayerType = "youtube";
+      currentIndex = -1;
+      youtubeIsPlaying = true;
+
+      const origin = encodeURIComponent(window.location.origin === "null" ? "https://www.youtube.com" : window.location.origin);
+      const src = `https://www.youtube.com/embed/${escapeAttr(videoId)}?autoplay=1&playsinline=1&enablejsapi=1&origin=${origin}&rel=0&modestbranding=1`;
+
+      youtubeEmbedArea.innerHTML = `<iframe id="youtubePlayerFrame" height="220" src="${src}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+      youtubeIframe = document.getElementById("youtubePlayerFrame");
+
+      nowTitle.textContent = title;
+      nowArtist.textContent = channel;
+      barTitle.textContent = title;
+      barMeta.textContent = "YouTube official player";
+      bigCover.innerHTML = "▶";
+      barCover.innerHTML = "▶";
+      playPauseBtn.textContent = "⏸";
+
+      setTimeout(() => sendYouTubeCommand("playVideo"), 800);
+    }
+
+    function sendYouTubeCommand(func, args = []) {
+      if (!youtubeIframe || !youtubeIframe.contentWindow) return;
+      youtubeIframe.contentWindow.postMessage(JSON.stringify({ event: "command", func, args }), "*");
+    }
+
+    function clearYouTubeResults() { youtubeResults.innerHTML = ""; }
+
+    function searchWebProvider() {
+      const query = webQuery.value.trim(); if (!query) return;
+      const provider = document.getElementById("searchProvider").value;
+      const urls = { youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, soundcloud: `https://soundcloud.com/search?q=${encodeURIComponent(query)}`, spotify: `https://open.spotify.com/search/${encodeURIComponent(query)}`, archive: `https://archive.org/search?query=${encodeURIComponent(query)}&and[]=mediatype%3A%22audio%22`, web: `https://www.google.com/search?q=${encodeURIComponent(query + " legal audio stream public domain creative commons mp3")}` };
+      window.open(urls[provider], "_blank", "noopener,noreferrer");
+    }
+
+    function tryOfficialEmbed() {
+      const value = webQuery.value.trim(); embedArea.innerHTML = "";
+      const youtubeId = getYouTubeId(value);
+      if (youtubeId) { embedYouTube(youtubeId, "YouTube embed", "Official embedded player"); return; }
+      if (/soundcloud\.com/i.test(value)) { embedArea.innerHTML = `<iframe height="166" scrolling="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(value)}&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&visual=true"></iframe>`; nowTitle.textContent = "SoundCloud embed"; nowArtist.textContent = "Official embedded player"; return; }
+      if (/open\.spotify\.com/i.test(value)) { embedArea.innerHTML = `<iframe height="152" src="https://open.spotify.com/embed/${value.split("open.spotify.com/")[1] || ""}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`; nowTitle.textContent = "Spotify embed"; nowArtist.textContent = "Official embedded player"; return; }
+      alert("Paste a YouTube, SoundCloud, or Spotify URL to embed it using the official player.");
+    }
+
+    function tryPlayUrl() {
+      const value = webQuery.value.trim();
+      if (!/^https?:\/\//i.test(value)) return alert("Paste a direct audio URL starting with http:// or https://");
+      if (/youtube\.com|youtu\.be|soundcloud\.com|spotify\.com/i.test(value)) return alert("Use Embed URL for YouTube/SoundCloud/Spotify. Direct media extraction is not supported.");
+      const title = value.split("/").pop() || "Web audio stream";
+      songs.unshift({ id: crypto.randomUUID(), title: cleanTitle(decodeURIComponent(title)), artist: "Web URL", source: "Direct stream", duration: "Live/URL", url: value, artwork: "" }); playSong(0);
+    }
+
+    function getYouTubeId(value) { try { const url = new URL(value); if (url.hostname.includes("youtu.be")) return url.pathname.slice(1); if (url.hostname.includes("youtube.com")) return url.searchParams.get("v"); } catch {} return null; }
+
+    function updateMediaSession() {
+      if (!("mediaSession" in navigator) || currentIndex < 0) return;
+      const song = songs[currentIndex];
+      navigator.mediaSession.metadata = new MediaMetadata({ title: song.title, artist: song.artist, album: song.source });
+      navigator.mediaSession.setActionHandler("play", () => audioPlayer.play());
+      navigator.mediaSession.setActionHandler("pause", () => audioPlayer.pause());
+      navigator.mediaSession.setActionHandler("previoustrack", previousSong);
+      navigator.mediaSession.setActionHandler("nexttrack", nextSong);
+    }
+
+    function escapeHtml(value) { return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
+    function escapeAttr(value) { return escapeHtml(value).replaceAll("`", "&#096;"); }
+
+    init();
+  </script>
+</body>
+</html>
