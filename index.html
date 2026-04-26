@@ -352,7 +352,18 @@
     let youtubePlayer = null;
     let youtubeIframe = null;
     let youtubeIsPlaying = false;
+    let youtubeApiReady = false;
+    let pendingYouTube = null;
     let activePlayerType = "audio";
+
+    window.onYouTubeIframeAPIReady = function () {
+      youtubeApiReady = true;
+      if (pendingYouTube) {
+        const next = pendingYouTube;
+        pendingYouTube = null;
+        embedYouTube(next.videoId, next.title, next.channel);
+      }
+    };
 
     const fileInput = document.getElementById("fileInput");
     const songList = document.getElementById("songList");
@@ -521,17 +532,7 @@
 
     function togglePlay() {
       if (activePlayerType === "youtube") {
-        if (!youtubeIframe) return;
-
-        if (youtubeIsPlaying) {
-          sendYouTubeCommand("pauseVideo");
-          youtubeIsPlaying = false;
-          playPauseBtn.textContent = "▶";
-        } else {
-          sendYouTubeCommand("playVideo");
-          youtubeIsPlaying = true;
-          playPauseBtn.textContent = "⏸";
-        }
+        alert("For YouTube embeds, tap play/pause inside the YouTube frame. Browser security rules do not always allow reliable external controls.");
         return;
       }
 
@@ -648,7 +649,7 @@
       youtubeResults.innerHTML = "";
       results.forEach(video => {
         const row = document.createElement("div"); row.className = "video-item";
-        row.innerHTML = `<div class="thumb">${video.thumb ? `<img src="${escapeAttr(video.thumb)}" alt="">` : "▶"}</div><div><div class="track-title">${escapeHtml(video.title)}</div><div class="track-meta">${escapeHtml(video.channel)} • YouTube official player</div></div><div class="mini-controls"><button class="small-btn primary">▶ Play</button><button class="small-btn">Open</button></div>`;
+        row.innerHTML = `<div class="thumb">${video.thumb ? `<img src="${escapeAttr(video.thumb)}" alt="">` : "▶"}</div><div><div class="track-title">${escapeHtml(video.title)}</div><div class="track-meta">${escapeHtml(video.channel)} • YouTube official player</div></div><div class="mini-controls"><button class="small-btn primary">Embed</button><button class="small-btn">Open YouTube</button></div>`;
         const [embedBtn, openBtn] = row.querySelectorAll("button");
         embedBtn.onclick = () => embedYouTube(video.id, video.title, video.channel);
         openBtn.onclick = () => window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`, "_blank", "noopener,noreferrer");
@@ -660,26 +661,41 @@
       audioPlayer.pause();
       activePlayerType = "youtube";
       currentIndex = -1;
-      youtubeIsPlaying = true;
-
-      const origin = encodeURIComponent(window.location.origin === "null" ? "https://www.youtube.com" : window.location.origin);
-      const src = `https://www.youtube.com/embed/${escapeAttr(videoId)}?autoplay=1&playsinline=1&enablejsapi=1&origin=${origin}&rel=0&modestbranding=1`;
-
-      youtubeEmbedArea.innerHTML = `<iframe id="youtubePlayerFrame" height="220" src="${src}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
-      youtubeIframe = document.getElementById("youtubePlayerFrame");
+      youtubeIsPlaying = false;
 
       nowTitle.textContent = title;
       nowArtist.textContent = channel;
       barTitle.textContent = title;
-      barMeta.textContent = "YouTube official player";
+      barMeta.textContent = "YouTube embed loaded";
       bigCover.innerHTML = "▶";
       barCover.innerHTML = "▶";
-      playPauseBtn.textContent = "⏸";
+      playPauseBtn.textContent = "▶";
 
-      setTimeout(() => sendYouTubeCommand("playVideo"), 800);
+      const src = `https://www.youtube.com/embed/${escapeAttr(videoId)}?playsinline=1&controls=1&rel=0&modestbranding=1`;
+
+      youtubeEmbedArea.innerHTML = `
+        <iframe
+          id="youtubePlayerFrame"
+          height="240"
+          src="${src}"
+          title="${escapeAttr(title)}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+        <div class="gold-note">
+          Tap play inside the YouTube frame. If it still does not play, the owner/browser is blocking embedded playback — use Open YouTube.
+        </div>
+        <button class="secondary" onclick="window.open('https://www.youtube.com/watch?v=${escapeAttr(videoId)}','_blank','noopener,noreferrer')">Open YouTube</button>
+      `;
+
+      youtubeIframe = document.getElementById("youtubePlayerFrame");
     }
 
     function sendYouTubeCommand(func, args = []) {
+      if (youtubePlayer && typeof youtubePlayer[func] === "function") {
+        youtubePlayer[func](...(args || []));
+        return;
+      }
       if (!youtubeIframe || !youtubeIframe.contentWindow) return;
       youtubeIframe.contentWindow.postMessage(JSON.stringify({ event: "command", func, args }), "*");
     }
