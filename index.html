@@ -377,6 +377,48 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
       }
     };
 
+    function createYTPlayer(videoId) {
+      if (youtubePlayer && typeof youtubePlayer.destroy === "function") {
+        youtubePlayer.destroy();
+        youtubePlayer = null;
+      }
+
+      const container = document.createElement("div");
+      container.id = "youtubePlayerMount";
+      youtubeEmbedArea.prepend(container);
+
+      youtubePlayer = new YT.Player("youtubePlayerMount", {
+        height: "240",
+        width: "100%",
+        videoId: videoId,
+        playerVars: {
+          autoplay: 1,
+          playsinline: 1,
+          controls: 1,
+          rel: 0,
+          modestbranding: 1,
+          enablejsapi: 1,
+          origin: location.origin
+        },
+        events: {
+          onReady: function(e) {
+            e.target.playVideo();
+            playPauseBtn.textContent = "⏸";
+            youtubeIsPlaying = true;
+          },
+          onStateChange: function(e) {
+            if (e.data === YT.PlayerState.PLAYING) {
+              playPauseBtn.textContent = "⏸";
+              youtubeIsPlaying = true;
+            } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+              playPauseBtn.textContent = "▶";
+              youtubeIsPlaying = false;
+            }
+          }
+        }
+      });
+    }
+
     const fileInput = document.getElementById("fileInput");
     const songList = document.getElementById("songList");
     const audioPlayer = document.getElementById("audioPlayer");
@@ -544,7 +586,14 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
 
     function togglePlay() {
       if (activePlayerType === "youtube") {
-        alert("For YouTube embeds, tap play/pause inside the YouTube frame. Browser security rules do not always allow reliable external controls.");
+        if (youtubePlayer && typeof youtubePlayer.getPlayerState === "function") {
+          const state = youtubePlayer.getPlayerState();
+          if (state === YT.PlayerState.PLAYING) {
+            youtubePlayer.pauseVideo();
+          } else {
+            youtubePlayer.playVideo();
+          }
+        }
         return;
       }
 
@@ -673,33 +722,26 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
       nowTitle.textContent = title;
       nowArtist.textContent = channel;
       barTitle.textContent = title;
-      barMeta.textContent = "YouTube embed loaded";
+      barMeta.textContent = "YouTube — loading...";
       bigCover.innerHTML = "▶";
       barCover.innerHTML = "▶";
       playPauseBtn.textContent = "▶";
 
-      // enablejsapi=1 is required for the iframe API and postMessage commands to work.
-      // autoplay=1 triggers playback after embed; origin param avoids cross-origin blocks.
-      const origin = encodeURIComponent(location.origin || "null");
-      const src = `https://www.youtube.com/embed/${escapeAttr(videoId)}?playsinline=1&controls=1&rel=0&modestbranding=1&enablejsapi=1&autoplay=1&origin=${origin}`;
-
+      // Build the wrapper HTML first (open YouTube button + ad status badge)
+      // The YT.Player will inject the actual iframe into #youtubePlayerMount
       youtubeEmbedArea.innerHTML = `
-        <iframe
-          id="youtubePlayerFrame"
-          height="240"
-          src="${src}"
-          title="${escapeAttr(title)}"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen>
-        </iframe>
         <div id="ytAdStatus" class="gold-note" style="display:none;">⏭ Ad detected — skipping…</div>
         <button class="secondary" style="margin-top:8px;" onclick="window.open('https://www.youtube.com/watch?v=${escapeAttr(videoId)}','_blank','noopener,noreferrer')">Open YouTube</button>
       `;
 
-      youtubeIframe = document.getElementById("youtubePlayerFrame");
+      if (!youtubeApiReady) {
+        // API script hasn't loaded yet — queue it
+        pendingYouTube = { videoId, title, channel };
+        youtubeEmbedArea.innerHTML = '<div class="muted">Loading YouTube player…</div>' + youtubeEmbedArea.innerHTML;
+        return;
+      }
 
-      // Start ad-skip watcher on the iframe's inner document (works when same-origin; 
-      // for cross-origin YouTube embeds we listen to postMessage state events instead).
+      createYTPlayer(videoId);
       startAdSkip(videoId);
     }
 
@@ -796,7 +838,10 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
     function clearYouTubeResults() {
       youtubeResults.innerHTML = "";
       stopAdSkip();
-      if (youtubeIframe && youtubeIframe._adCleanup) youtubeIframe._adCleanup();
+      if (youtubePlayer && typeof youtubePlayer.destroy === "function") {
+        youtubePlayer.destroy();
+        youtubePlayer = null;
+      }
       youtubeEmbedArea.innerHTML = "";
       youtubeIframe = null;
     }
