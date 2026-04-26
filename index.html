@@ -426,12 +426,11 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
     function createYTPlayer(videoId) {
       // If a player already exists, just load the new video — much faster than destroy+recreate
       if (youtubePlayer && typeof youtubePlayer.loadVideoById === "function") {
-        youtubePlayer.loadVideoById(videoId);
-        youtubePlayer.playVideo();
+        // Pass startSeconds so the API auto-plays once buffered — calling playVideo()
+        // immediately after loadVideoById() races against the async load and loses.
+        youtubePlayer.loadVideoById({ videoId: videoId, startSeconds: 0 });
         youtubeIframe = youtubePlayer.getIframe();
-        playPauseBtn.textContent = "⏸";
-        youtubeIsPlaying = true;
-        startDurationPoll();
+        // onYTStateChange will fire PLAYING and update the UI once it actually starts
         return;
       }
 
