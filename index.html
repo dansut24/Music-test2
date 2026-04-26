@@ -377,12 +377,65 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
       }
     };
 
+    let ytDurationInterval = null;
+
+    function onYTReady(e) {
+      e.target.playVideo();
+      playPauseBtn.textContent = "⏸";
+      youtubeIsPlaying = true;
+      youtubeIframe = youtubePlayer.getIframe();
+      startDurationPoll();
+    }
+
+    function onYTStateChange(e) {
+      if (e.data === YT.PlayerState.PLAYING) {
+        playPauseBtn.textContent = "⏸";
+        youtubeIsPlaying = true;
+        youtubeIframe = youtubePlayer.getIframe();
+        startDurationPoll();
+      } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+        playPauseBtn.textContent = "▶";
+        youtubeIsPlaying = false;
+        stopDurationPoll();
+      }
+    }
+
+    function startDurationPoll() {
+      stopDurationPoll();
+      ytDurationInterval = setInterval(function() {
+        if (!youtubePlayer || typeof youtubePlayer.getDuration !== "function") return;
+        const dur = youtubePlayer.getDuration();
+        const cur = youtubePlayer.getCurrentTime();
+        if (dur > 0) {
+          barMeta.textContent = nowArtist.textContent + "  " + fmtTime(cur) + " / " + fmtTime(dur);
+        }
+      }, 1000);
+    }
+
+    function stopDurationPoll() {
+      if (ytDurationInterval != null) { clearInterval(ytDurationInterval); ytDurationInterval = null; }
+    }
+
+    function fmtTime(secs) {
+      if (!secs || isNaN(secs)) return "0:00";
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return m + ":" + (s < 10 ? "0" : "") + s;
+    }
+
     function createYTPlayer(videoId) {
-      if (youtubePlayer && typeof youtubePlayer.destroy === "function") {
-        youtubePlayer.destroy();
-        youtubePlayer = null;
+      // If a player already exists, just load the new video — much faster than destroy+recreate
+      if (youtubePlayer && typeof youtubePlayer.loadVideoById === "function") {
+        youtubePlayer.loadVideoById(videoId);
+        youtubePlayer.playVideo();
+        youtubeIframe = youtubePlayer.getIframe();
+        playPauseBtn.textContent = "⏸";
+        youtubeIsPlaying = true;
+        startDurationPoll();
+        return;
       }
 
+      // First time: create a mount div and initialise the player
       const container = document.createElement("div");
       container.id = "youtubePlayerMount";
       youtubeEmbedArea.prepend(container);
@@ -401,20 +454,8 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
           origin: location.origin
         },
         events: {
-          onReady: function(e) {
-            e.target.playVideo();
-            playPauseBtn.textContent = "⏸";
-            youtubeIsPlaying = true;
-          },
-          onStateChange: function(e) {
-            if (e.data === YT.PlayerState.PLAYING) {
-              playPauseBtn.textContent = "⏸";
-              youtubeIsPlaying = true;
-            } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
-              playPauseBtn.textContent = "▶";
-              youtubeIsPlaying = false;
-            }
-          }
+          onReady: onYTReady,
+          onStateChange: onYTStateChange
         }
       });
     }
@@ -722,23 +763,28 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
       nowTitle.textContent = title;
       nowArtist.textContent = channel;
       barTitle.textContent = title;
-      barMeta.textContent = "YouTube — loading...";
+      barMeta.textContent = channel + "  0:00 / ...";
       bigCover.innerHTML = "▶";
       barCover.innerHTML = "▶";
       playPauseBtn.textContent = "▶";
-
-      // Build the wrapper HTML first (open YouTube button + ad status badge)
-      // The YT.Player will inject the actual iframe into #youtubePlayerMount
-      youtubeEmbedArea.innerHTML = `
-        <div id="ytAdStatus" class="gold-note" style="display:none;">⏭ Ad detected — skipping…</div>
-        <button class="secondary" style="margin-top:8px;" onclick="window.open('https://www.youtube.com/watch?v=${escapeAttr(videoId)}','_blank','noopener,noreferrer')">Open YouTube</button>
-      `;
+      updateMediaSession(title, channel);
 
       if (!youtubeApiReady) {
-        // API script hasn't loaded yet — queue it
         pendingYouTube = { videoId, title, channel };
-        youtubeEmbedArea.innerHTML = '<div class="muted">Loading YouTube player…</div>' + youtubeEmbedArea.innerHTML;
+        youtubeEmbedArea.innerHTML = '<div class="muted">Loading YouTube player…</div>';
         return;
+      }
+
+      // Only rebuild the embed area HTML on first load (player mount div must persist)
+      if (!youtubePlayer) {
+        youtubeEmbedArea.innerHTML = `
+          <div id="ytAdStatus" class="gold-note" style="display:none;">⏭ Ad detected — skipping…</div>
+          <button class="secondary" style="margin-top:8px;" onclick="window.open('https://www.youtube.com/watch?v=${escapeAttr(videoId)}','_blank','noopener,noreferrer')">Open YouTube</button>
+        `;
+      } else {
+        // Player already exists — just update the Open YouTube button URL
+        const openBtn = youtubeEmbedArea.querySelector("button.secondary");
+        if (openBtn) openBtn.onclick = function() { window.open("https://www.youtube.com/watch?v=" + encodeURIComponent(videoId), "_blank", "noopener,noreferrer"); };
       }
 
       createYTPlayer(videoId);
@@ -838,12 +884,14 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
     function clearYouTubeResults() {
       youtubeResults.innerHTML = "";
       stopAdSkip();
+      stopDurationPoll();
       if (youtubePlayer && typeof youtubePlayer.destroy === "function") {
         youtubePlayer.destroy();
         youtubePlayer = null;
       }
       youtubeEmbedArea.innerHTML = "";
       youtubeIframe = null;
+      activePlayerType = "audio";
     }
 
     function searchWebProvider() {
@@ -872,12 +920,19 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
 
     function getYouTubeId(value) { try { const url = new URL(value); if (url.hostname.includes("youtu.be")) return url.pathname.slice(1); if (url.hostname.includes("youtube.com")) return url.searchParams.get("v"); } catch {} return null; }
 
-    function updateMediaSession() {
-      if (!("mediaSession" in navigator) || currentIndex < 0) return;
-      const song = songs[currentIndex];
-      navigator.mediaSession.metadata = new MediaMetadata({ title: song.title, artist: song.artist, album: song.source });
-      navigator.mediaSession.setActionHandler("play", () => audioPlayer.play());
-      navigator.mediaSession.setActionHandler("pause", () => audioPlayer.pause());
+    function updateMediaSession(overrideTitle, overrideArtist) {
+      if (!("mediaSession" in navigator)) return;
+      const title = overrideTitle || (currentIndex >= 0 ? songs[currentIndex].title : "Nothing playing");
+      const artist = overrideArtist || (currentIndex >= 0 ? songs[currentIndex].artist : "");
+      navigator.mediaSession.metadata = new MediaMetadata({ title: title, artist: artist });
+      navigator.mediaSession.setActionHandler("play", function() {
+        if (activePlayerType === "youtube" && youtubePlayer) { youtubePlayer.playVideo(); playPauseBtn.textContent = "⏸"; }
+        else audioPlayer.play();
+      });
+      navigator.mediaSession.setActionHandler("pause", function() {
+        if (activePlayerType === "youtube" && youtubePlayer) { youtubePlayer.pauseVideo(); playPauseBtn.textContent = "▶"; }
+        else audioPlayer.pause();
+      });
       navigator.mediaSession.setActionHandler("previoustrack", previousSong);
       navigator.mediaSession.setActionHandler("nexttrack", nextSong);
     }
@@ -886,6 +941,51 @@ iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; backgrou
     function escapeAttr(value) { return escapeHtml(value).replaceAll("`", "&#096;"); }
 
     init();
+
+    // ── Service Worker (offline + background keepalive) ───────────────────────
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(function() {});
+    }
+
+    // ── Silent audio keepalive ────────────────────────────────────────────────
+    // Browsers throttle/kill audio contexts in background tabs. Playing a silent
+    // looping audio node tricks the browser into keeping the audio thread alive,
+    // which lets YouTube embedded audio and the HTML audio element keep playing
+    // when the user switches tabs or minimises the browser.
+    // The AudioContext is only created once the user has interacted (click/tap)
+    // to satisfy autoplay policy — then it runs silently forever.
+    let keepaliveCtx = null;
+    let keepaliveStarted = false;
+
+    function startKeepalive() {
+      if (keepaliveStarted) return;
+      try {
+        keepaliveCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const buf = keepaliveCtx.createBuffer(1, keepaliveCtx.sampleRate, keepaliveCtx.sampleRate);
+        const src = keepaliveCtx.createBufferSource();
+        src.buffer = buf;
+        src.loop = true;
+        src.connect(keepaliveCtx.destination);
+        src.start();
+        keepaliveStarted = true;
+      } catch(e) {}
+    }
+
+    document.addEventListener("click", startKeepalive, { once: true });
+    document.addEventListener("keydown", startKeepalive, { once: true });
+
+    // Keep page alive — request a wake lock if supported (Android Chrome, desktop Chrome)
+    async function requestWakeLock() {
+      if ("wakeLock" in navigator) {
+        try {
+          await navigator.wakeLock.request("screen");
+        } catch(e) {}
+      }
+    }
+    requestWakeLock();
+    document.addEventListener("visibilitychange", function() {
+      if (document.visibilityState === "visible") requestWakeLock();
+    });
   </script>
 
 </body>
