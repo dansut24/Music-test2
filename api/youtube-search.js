@@ -1,25 +1,21 @@
-// api/youtube-search.js — Vercel serverless function
-// Keeps your YouTube Data API key server-side only.
-// Deploy to Vercel and set YOUTUBE_API_KEY in your project’s Environment Variables.
-
+// api/youtube-search.js
 module.exports = async function handler(req, res) {
-// Only allow GET requests
 if (req.method !== “GET”) {
 return res.status(405).json({ error: “Method not allowed” });
 }
 
-const query = req.query.q;
+var query = req.query.q;
 if (!query || typeof query !== “string” || query.trim().length === 0) {
 return res.status(400).json({ error: “Missing search query” });
 }
 
-const apiKey = process.env.YOUTUBE_API_KEY;
+var apiKey = process.env.YOUTUBE_API_KEY;
 if (!apiKey) {
-return res.status(500).json({ error: “YouTube API key not configured on server. Add YOUTUBE_API_KEY in Vercel dashboard → Settings → Environment Variables.” });
+return res.status(500).json({ error: “YOUTUBE_API_KEY not set in Vercel environment variables.” });
 }
 
 try {
-const url = new URL(“https://www.googleapis.com/youtube/v3/search”);
+var url = new URL(“https://www.googleapis.com/youtube/v3/search”);
 url.searchParams.set(“part”, “snippet”);
 url.searchParams.set(“type”, “video”);
 url.searchParams.set(“videoEmbeddable”, “true”);
@@ -29,32 +25,30 @@ url.searchParams.set(“q”, query.trim());
 url.searchParams.set(“key”, apiKey);
 
 ```
-const upstream = await fetch(url.toString());
-const data = await upstream.json();
+var upstream = await fetch(url.toString());
+var data = await upstream.json();
 
 if (!upstream.ok) {
-  const message = data?.error?.message || "YouTube API error";
-  const reason = data?.error?.errors?.[0]?.reason || "";
-  const domain = data?.error?.errors?.[0]?.domain || "";
-  return res.status(upstream.status).json({ error: message, reason, domain, raw: data?.error });
+  var message = (data && data.error && data.error.message) || "YouTube API error";
+  var reason = (data && data.error && data.error.errors && data.error.errors[0] && data.error.errors[0].reason) || "";
+  return res.status(upstream.status).json({ error: message, reason: reason });
 }
 
-const results = (data.items || []).map(item => ({
-  id: item.id.videoId,
-  title: item.snippet.title,
-  channel: item.snippet.channelTitle,
-  thumb:
-    item.snippet.thumbnails?.medium?.url ||
-    item.snippet.thumbnails?.default?.url ||
-    "",
-}));
+var results = (data.items || []).map(function(item) {
+  return {
+    id: item.id.videoId,
+    title: item.snippet.title,
+    channel: item.snippet.channelTitle,
+    thumb: (item.snippet.thumbnails && item.snippet.thumbnails.medium && item.snippet.thumbnails.medium.url) ||
+           (item.snippet.thumbnails && item.snippet.thumbnails.default && item.snippet.thumbnails.default.url) || ""
+  };
+});
 
-// Cache for 5 minutes at the CDN edge
 res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=60");
-return res.status(200).json({ results });
+return res.status(200).json({ results: results });
 ```
 
 } catch (err) {
 return res.status(500).json({ error: “Internal server error: “ + err.message });
 }
-}
+};
