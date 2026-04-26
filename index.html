@@ -507,17 +507,14 @@
     </footer>
   </div>
 
-  <script src="https://www.youtube.com/iframe_api"></script>
-
   <script>
-    let youtubeApiReady = false;
-    let youtubePlayer = null;
+    let youtubeIframe = null;
     let currentVideoId = "";
     let currentTitle = "";
     let currentChannel = "";
     let currentThumb = "";
-    let durationTimer = null;
-    let pendingAutoplay = false;
+    let progressTimer = null;
+    let fakeProgress = 0;
 
     const youtubeQuery = document.getElementById("youtubeQuery");
     const youtubeResults = document.getElementById("youtubeResults");
@@ -533,24 +530,14 @@
     const playPauseBtn = document.getElementById("playPauseBtn");
     const progressFill = document.getElementById("progressFill");
 
-    window.onYouTubeIframeAPIReady = function () {
-      youtubeApiReady = true;
-      statusPill.textContent = "Ready";
-    };
-
     function focusSearch() {
-      document.getElementById("searchArea").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-
+      document.getElementById("searchArea").scrollIntoView({ behavior: "smooth", block: "start" });
       setTimeout(() => youtubeQuery.focus(), 200);
     }
 
     async function searchYouTube() {
       const query = youtubeQuery.value.trim();
       if (!query) return;
-
       statusPill.textContent = "Searching...";
       resultCount.textContent = "Searching...";
       youtubeResults.innerHTML = `<div class="muted">Searching YouTube...</div>`;
@@ -558,23 +545,16 @@
       try {
         const res = await fetch(`/api/youtube-search?q=${encodeURIComponent(query)}`);
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data?.error || "YouTube search failed");
-        }
-
+        if (!res.ok) throw new Error(data?.error || "YouTube search failed");
         renderYouTubeResults(data.results || []);
       } catch (err) {
         youtubeResults.innerHTML = `
           <div class="warning">
             <strong>YouTube search failed.</strong><br>
             ${escapeHtml(err.message)}<br><br>
-            Make sure your serverless file exists at
-            <code>/api/youtube-search.js</code> and your Vercel environment variable is
-            <code>YOUTUBE_API_KEY</code>.
+            Make sure <code>/api/youtube-search.js</code> exists and Vercel has <code>YOUTUBE_API_KEY</code> set.
           </div>
         `;
-
         statusPill.textContent = "Search failed";
         resultCount.textContent = "No results";
       }
@@ -582,14 +562,12 @@
 
     function renderYouTubeResults(results) {
       youtubeResults.innerHTML = "";
-
       if (!results.length) {
         youtubeResults.innerHTML = `<div class="muted">No YouTube videos found.</div>`;
         resultCount.textContent = "No results";
         statusPill.textContent = "No results";
         return;
       }
-
       resultCount.textContent = `${results.length} result${results.length === 1 ? "" : "s"}`;
       statusPill.textContent = "Results ready";
 
@@ -597,222 +575,96 @@
         const row = document.createElement("div");
         row.className = "video-item";
         row.dataset.videoId = video.id;
-
         row.innerHTML = `
-          <div class="thumb">
-            ${video.thumb ? `<img src="${escapeAttr(video.thumb)}" alt="">` : "▶"}
-          </div>
-
+          <div class="thumb">${video.thumb ? `<img src="${escapeAttr(video.thumb)}" alt="">` : "▶"}</div>
           <div>
             <div class="track-title">${escapeHtml(video.title)}</div>
-            <div class="track-meta">${escapeHtml(video.channel || "YouTube")} • Official player</div>
+            <div class="track-meta">${escapeHtml(video.channel || "YouTube")} • Tap Play to start</div>
           </div>
-
           <div>
             <button class="small-btn primary">Play</button>
             <button class="small-btn">Open</button>
           </div>
         `;
 
-        const playBtn = row.querySelector(".primary");
-        const openBtn = row.querySelectorAll("button")[1];
+        row.querySelector(".primary").addEventListener("click", () => {
+          playYouTubeDirect(video.id, video.title, video.channel || "YouTube", video.thumb || "");
+        });
 
-        playBtn.onclick = () => {
-          playYouTube(video.id, video.title, video.channel || "YouTube", video.thumb || "");
-        };
+        row.querySelectorAll("button")[1].addEventListener("click", () => {
+          window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`, "_blank", "noopener,noreferrer");
+        });
 
-        openBtn.onclick = () => {
-          window.open(
-            `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`,
-            "_blank",
-            "noopener,noreferrer"
-          );
-        };
-
-        row.ondblclick = () => {
-          playYouTube(video.id, video.title, video.channel || "YouTube", video.thumb || "");
-        };
+        row.addEventListener("dblclick", () => {
+          playYouTubeDirect(video.id, video.title, video.channel || "YouTube", video.thumb || "");
+        });
 
         youtubeResults.appendChild(row);
       });
     }
 
-    function playYouTube(videoId, title = "YouTube video", channel = "YouTube", thumb = "") {
+    function playYouTubeDirect(videoId, title = "YouTube video", channel = "YouTube", thumb = "") {
       currentVideoId = videoId;
       currentTitle = title;
       currentChannel = channel;
       currentThumb = thumb;
-      pendingAutoplay = true;
-
       updateNowPlaying(title, channel, thumb);
       markPlayingRow(videoId);
+      stopProgressTimer();
+      fakeProgress = 0;
+      progressFill.style.width = "0%";
+
+      const src = `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?autoplay=1&controls=1&rel=0&playsinline=1&modestbranding=1&iv_load_policy=3`;
 
       youtubeEmbedArea.innerHTML = `
         <div class="gold-note" id="tapNotice">
-          Starting playback... If there is no sound, tap the YouTube player once.
+          Trying to start playback from your Play tap. If there is no sound, tap the YouTube player once.
         </div>
-        <div id="youtubePlayerMount"></div>
+        <iframe
+          id="youtubeIframe"
+          height="220"
+          src="${src}"
+          title="${escapeAttr(title)}"
+          allow="autoplay; encrypted-media; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+        <button class="small-btn primary" style="width:100%; margin-top:10px;" onclick="reloadCurrentIframe()">
+          Try Play Again
+        </button>
       `;
 
-      if (!youtubeApiReady || !window.YT || !YT.Player) {
-        statusPill.textContent = "Loading player...";
-        setTimeout(() => playYouTube(videoId, title, channel, thumb), 600);
-        return;
-      }
-
-      if (youtubePlayer && typeof youtubePlayer.destroy === "function") {
-        youtubePlayer.destroy();
-        youtubePlayer = null;
-      }
-
-      youtubePlayer = new YT.Player("youtubePlayerMount", {
-        height: "220",
-        width: "100%",
-        videoId: videoId,
-        playerVars: {
-          autoplay: 1,
-          mute: 0,
-          controls: 1,
-          rel: 0,
-          modestbranding: 1,
-          playsinline: 1,
-          enablejsapi: 1,
-          origin: window.location.origin
-        },
-        events: {
-          onReady: function (event) {
-            forceStartPlayback(event.target);
-          },
-          onStateChange: onYTStateChange,
-          onError: onYTError
-        }
-      });
-
-      youtubeEmbedArea.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
+      youtubeIframe = document.getElementById("youtubeIframe");
+      playPauseBtn.textContent = "⏸";
+      statusPill.textContent = "Playing";
+      startProgressTimer();
+      youtubeEmbedArea.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
-    function forceStartPlayback(player) {
-      try {
-        player.unMute();
-        player.setVolume(100);
-        player.playVideo();
-      } catch {}
-
-      setTimeout(() => {
-        try {
-          player.unMute();
-          player.setVolume(100);
-          player.playVideo();
-        } catch {}
-      }, 300);
-
-      setTimeout(() => {
-        try {
-          const state = player.getPlayerState();
-
-          if (state !== YT.PlayerState.PLAYING) {
-            statusPill.textContent = "Tap player";
-            playPauseBtn.textContent = "▶";
-
-            const notice = document.getElementById("tapNotice");
-            if (notice) {
-              notice.innerHTML = `
-                iPhone/Safari blocked automatic audio. Tap the YouTube player’s play button once.
-              `;
-            }
-          }
-        } catch {}
-      }, 1400);
-    }
-
-    function onYTStateChange(e) {
-      if (e.data === YT.PlayerState.PLAYING) {
-        playPauseBtn.textContent = "⏸";
-        statusPill.textContent = "Playing";
-        pendingAutoplay = false;
-
-        const notice = document.getElementById("tapNotice");
-        if (notice) {
-          notice.innerHTML = "Playing via YouTube official player.";
-        }
-
-        startDurationPoll();
-      }
-
-      if (e.data === YT.PlayerState.PAUSED) {
-        playPauseBtn.textContent = "▶";
-        statusPill.textContent = "Paused";
-      }
-
-      if (e.data === YT.PlayerState.ENDED) {
-        playPauseBtn.textContent = "▶";
-        statusPill.textContent = "Ended";
-        progressFill.style.width = "100%";
-      }
-
-      if (e.data === YT.PlayerState.BUFFERING) {
-        statusPill.textContent = "Buffering";
-      }
-    }
-
-    function onYTError() {
-      statusPill.textContent = "Player error";
-
-      youtubeEmbedArea.insertAdjacentHTML(
-        "beforeend",
-        `
-          <div class="warning">
-            This video cannot be embedded or played here. Try another result or press Open.
-          </div>
-        `
-      );
+    function reloadCurrentIframe() {
+      if (!currentVideoId) return;
+      playYouTubeDirect(currentVideoId, currentTitle, currentChannel, currentThumb);
     }
 
     function togglePlay() {
-      if (!youtubePlayer || typeof youtubePlayer.getPlayerState !== "function") {
-        if (currentVideoId) {
-          playYouTube(currentVideoId, currentTitle, currentChannel, currentThumb);
-        }
-        return;
-      }
-
-      const state = youtubePlayer.getPlayerState();
-
-      if (state === YT.PlayerState.PLAYING) {
-        youtubePlayer.pauseVideo();
-      } else {
-        forceStartPlayback(youtubePlayer);
-      }
+      if (!currentVideoId) return;
+      reloadCurrentIframe();
     }
 
     function restartVideo() {
-      if (!youtubePlayer || typeof youtubePlayer.seekTo !== "function") return;
-
-      youtubePlayer.seekTo(0, true);
-      forceStartPlayback(youtubePlayer);
+      if (!currentVideoId) return;
+      reloadCurrentIframe();
     }
 
     function clearPlayer() {
-      stopDurationPoll();
-
-      if (youtubePlayer && typeof youtubePlayer.destroy === "function") {
-        youtubePlayer.destroy();
-      }
-
-      youtubePlayer = null;
+      stopProgressTimer();
+      youtubeIframe = null;
       currentVideoId = "";
       currentTitle = "";
       currentChannel = "";
       currentThumb = "";
-      pendingAutoplay = false;
-
       youtubeEmbedArea.innerHTML = "";
       playPauseBtn.textContent = "▶";
       progressFill.style.width = "0%";
-
       updateNowPlaying("Nothing playing", "Search YouTube to start", "");
       markPlayingRow("");
       statusPill.textContent = "Stopped";
@@ -823,11 +675,9 @@
       nowArtist.textContent = channel;
       barTitle.textContent = title;
       barMeta.textContent = channel;
-
       const imageHtml = thumb ? `<img src="${escapeAttr(thumb)}" alt="">` : "▶";
       bigCover.innerHTML = imageHtml;
       barCover.innerHTML = imageHtml;
-
       updateMediaSession(title, channel, thumb);
     }
 
@@ -837,60 +687,28 @@
       });
     }
 
-    function startDurationPoll() {
-      stopDurationPoll();
-
-      durationTimer = setInterval(() => {
-        if (!youtubePlayer || typeof youtubePlayer.getDuration !== "function") return;
-
-        const duration = youtubePlayer.getDuration();
-        const current = youtubePlayer.getCurrentTime();
-
-        if (!duration || isNaN(duration)) return;
-
-        const percent = Math.min(100, Math.max(0, (current / duration) * 100));
-        progressFill.style.width = `${percent}%`;
-        barMeta.textContent = `${currentChannel} • ${fmtTime(current)} / ${fmtTime(duration)}`;
+    function startProgressTimer() {
+      stopProgressTimer();
+      progressTimer = setInterval(() => {
+        fakeProgress = Math.min(99, fakeProgress + 0.25);
+        progressFill.style.width = `${fakeProgress}%`;
+        barMeta.textContent = `${currentChannel} • YouTube player`;
       }, 1000);
     }
 
-    function stopDurationPoll() {
-      if (durationTimer) {
-        clearInterval(durationTimer);
-        durationTimer = null;
-      }
-    }
-
-    function fmtTime(secs) {
-      if (!secs || isNaN(secs)) return "0:00";
-
-      const m = Math.floor(secs / 60);
-      const s = Math.floor(secs % 60);
-
-      return `${m}:${s < 10 ? "0" : ""}${s}`;
+    function stopProgressTimer() {
+      if (progressTimer) clearInterval(progressTimer);
+      progressTimer = null;
     }
 
     function updateMediaSession(title, artist, thumb) {
       if (!("mediaSession" in navigator)) return;
-
       try {
         navigator.mediaSession.metadata = new MediaMetadata({
           title,
           artist,
-          artwork: thumb ? [
-            { src: thumb, sizes: "320x180", type: "image/jpeg" }
-          ] : []
+          artwork: thumb ? [{ src: thumb, sizes: "320x180", type: "image/jpeg" }] : []
         });
-
-        navigator.mediaSession.setActionHandler("play", () => {
-          if (youtubePlayer) forceStartPlayback(youtubePlayer);
-        });
-
-        navigator.mediaSession.setActionHandler("pause", () => {
-          if (youtubePlayer) youtubePlayer.pauseVideo();
-        });
-
-        navigator.mediaSession.setActionHandler("previoustrack", restartVideo);
       } catch {}
     }
 
@@ -909,10 +727,7 @@
 
     async function requestWakeLock() {
       if (!("wakeLock" in navigator)) return;
-
-      try {
-        await navigator.wakeLock.request("screen");
-      } catch {}
+      try { await navigator.wakeLock.request("screen"); } catch {}
     }
 
     document.addEventListener("click", requestWakeLock, { once: true });
