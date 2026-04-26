@@ -22,8 +22,9 @@ self.clients.claim();
 });
 
 self.addEventListener(“fetch”, function(e) {
-// Let API calls go straight to network
+// Let API calls and test pages go straight to network
 if (e.request.url.includes(”/api/”)) return;
+if (e.request.url.includes(”/yt-test”)) return;
 e.respondWith(
 caches.match(e.request).then(function(cached) {
 return cached || fetch(e.request).catch(function() { return caches.match(”/index.html”); });
