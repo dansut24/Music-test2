@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -18,212 +19,215 @@
       --gold: #ffd166;
     }
 
-    * { box-sizing: border-box; }
+```
+* { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top left, #12351f, #09090b 38%);
-      color: var(--text);
-      min-height: 100vh;
-      overflow: hidden;
-    }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top left, #12351f, #09090b 38%);
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+}
 
-    .app {
-      display: grid;
-      grid-template-columns: 1fr 370px;
-      grid-template-rows: 74px 1fr 104px;
-      height: 100vh;
-    }
+.app {
+  display: grid;
+  grid-template-columns: 1fr 370px;
+  grid-template-rows: 74px 1fr 104px;
+  height: 100vh;
+}
 
-    .top-nav {
-      grid-column: 1 / 3;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px 22px;
-      background: rgba(8, 8, 10, 0.82);
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(18px);
-      z-index: 20;
-    }
+.top-nav {
+  grid-column: 1 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 22px;
+  background: rgba(8, 8, 10, 0.82);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+  z-index: 20;
+}
 
-    .nav-left { display: flex; align-items: center; gap: 14px; }
+.nav-left { display: flex; align-items: center; gap: 14px; }
 
-    .hamburger {
-      width: 46px;
-      height: 46px;
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-    }
+.hamburger {
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
 
-    .hamburger span,
-    .hamburger span::before,
-    .hamburger span::after {
-      display: block;
-      width: 20px;
-      height: 2px;
-      background: var(--text);
-      border-radius: 999px;
-      content: "";
-      position: relative;
-      transition: 0.2s ease;
-    }
+.hamburger span,
+.hamburger span::before,
+.hamburger span::after {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 999px;
+  content: "";
+  position: relative;
+  transition: 0.2s ease;
+}
 
-    .hamburger span::before { position: absolute; top: -7px; }
-    .hamburger span::after { position: absolute; top: 7px; }
+.hamburger span::before { position: absolute; top: -7px; }
+.hamburger span::after { position: absolute; top: 7px; }
 
-    .brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 900; white-space: nowrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 900; white-space: nowrap; }
 
-    .logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent), #7cf7a8);
-      display: grid;
-      place-items: center;
-      color: #07110b;
-    }
+.logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), #7cf7a8);
+  display: grid;
+  place-items: center;
+  color: #07110b;
+}
 
-    .menu-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: 0.2s ease; z-index: 40; }
-    .menu-backdrop.open { opacity: 1; pointer-events: auto; }
+.menu-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: 0.2s ease; z-index: 40; }
+.menu-backdrop.open { opacity: 1; pointer-events: auto; }
 
-    .side-overlay {
-      position: fixed; top: 0; left: 0; height: 100vh; width: min(86vw, 340px);
-      background: rgba(12, 12, 15, 0.96); border-right: 1px solid var(--border);
-      transform: translateX(-105%); transition: transform 0.24s ease; z-index: 50;
-      padding: 22px; display: flex; flex-direction: column; gap: 22px; box-shadow: 24px 0 80px rgba(0,0,0,0.45);
-    }
-    .side-overlay.open { transform: translateX(0); }
-    .overlay-head { display: flex; justify-content: space-between; align-items: center; }
+.side-overlay {
+  position: fixed; top: 0; left: 0; height: 100vh; width: min(86vw, 340px);
+  background: rgba(12, 12, 15, 0.96); border-right: 1px solid var(--border);
+  transform: translateX(-105%); transition: transform 0.24s ease; z-index: 50;
+  padding: 22px; display: flex; flex-direction: column; gap: 22px; box-shadow: 24px 0 80px rgba(0,0,0,0.45);
+}
+.side-overlay.open { transform: translateX(0); }
+.overlay-head { display: flex; justify-content: space-between; align-items: center; }
 
-    .close-menu { width: 40px; height: 40px; border-radius: 14px; border: 1px solid var(--border); background: var(--panel-soft); color: var(--text); cursor: pointer; font-size: 20px; }
+.close-menu { width: 40px; height: 40px; border-radius: 14px; border: 1px solid var(--border); background: var(--panel-soft); color: var(--text); cursor: pointer; font-size: 20px; }
 
-    .nav, .playlist, .library-actions { display: grid; gap: 8px; }
-    .nav button, .playlist button, .primary-btn, .ghost-btn {
-      border: 0; color: var(--text); border-radius: 14px; padding: 12px 14px; cursor: pointer; font-weight: 800; text-align: left;
-    }
-    .nav button, .playlist button, .ghost-btn { background: transparent; }
-    .nav button.active, .nav button:hover, .playlist button:hover, .ghost-btn:hover { background: var(--panel-soft); }
-    .primary-btn { background: var(--accent); color: #061008; text-align: center; }
-    .ghost-btn { border: 1px solid var(--border); text-align: center; }
+.nav, .playlist, .library-actions { display: grid; gap: 8px; }
+.nav button, .playlist button, .primary-btn, .ghost-btn {
+  border: 0; color: var(--text); border-radius: 14px; padding: 12px 14px; cursor: pointer; font-weight: 800; text-align: left;
+}
+.nav button, .playlist button, .ghost-btn { background: transparent; }
+.nav button.active, .nav button:hover, .playlist button:hover, .ghost-btn:hover { background: var(--panel-soft); }
+.primary-btn { background: var(--accent); color: #061008; text-align: center; }
+.ghost-btn { border: 1px solid var(--border); text-align: center; }
 
-    .playlist-title { color: var(--muted); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 8px 0; }
+.playlist-title { color: var(--muted); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 8px 0; }
 
-    .top-search {
-      flex: 1; max-width: 800px; display: flex; gap: 10px; background: rgba(255, 255, 255, 0.08);
-      padding: 8px; border-radius: 999px; border: 1px solid var(--border);
-    }
+.top-search {
+  flex: 1; max-width: 800px; display: flex; gap: 10px; background: rgba(255, 255, 255, 0.08);
+  padding: 8px; border-radius: 999px; border: 1px solid var(--border);
+}
 
-    .top-search input { flex: 1; background: transparent; border: 0; outline: 0; color: var(--text); padding: 0 12px; font-size: 15px; min-width: 0; }
-    .top-search button, .pill-btn { border: 0; border-radius: 999px; padding: 10px 14px; background: var(--accent); color: #061008; font-weight: 900; cursor: pointer; white-space: nowrap; }
+.top-search input { flex: 1; background: transparent; border: 0; outline: 0; color: var(--text); padding: 0 12px; font-size: 15px; min-width: 0; }
+.top-search button, .pill-btn { border: 0; border-radius: 999px; padding: 10px 14px; background: var(--accent); color: #061008; font-weight: 900; cursor: pointer; white-space: nowrap; }
 
-    .main { padding: 24px; overflow: auto; }
+.main { padding: 24px; overflow: auto; }
 
-    .hero {
-      background: linear-gradient(135deg, rgba(29, 185, 84, 0.34), rgba(255, 255, 255, 0.06));
-      border: 1px solid var(--border); border-radius: 28px; padding: 28px;
-      display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; margin-bottom: 24px;
-    }
-    .hero h1 { font-size: clamp(30px, 5vw, 58px); line-height: 0.95; margin: 0 0 12px; }
-    .hero p { color: var(--muted); margin: 0; max-width: 780px; }
-    .hero-card { width: 160px; height: 160px; border-radius: 34px; background: linear-gradient(145deg, #1db954, #0b5427); display: grid; place-items: center; font-size: 58px; box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
+.hero {
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.34), rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--border); border-radius: 28px; padding: 28px;
+  display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; margin-bottom: 24px;
+}
+.hero h1 { font-size: clamp(30px, 5vw, 58px); line-height: 0.95; margin: 0 0 12px; }
+.hero p { color: var(--muted); margin: 0; max-width: 780px; }
+.hero-card { width: 160px; height: 160px; border-radius: 34px; background: linear-gradient(145deg, #1db954, #0b5427); display: grid; place-items: center; font-size: 58px; box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
 
-    .cards-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px; }
-    .route-card { background: rgba(255, 255, 255, 0.055); border: 1px solid var(--border); border-radius: 22px; padding: 16px; min-height: 120px; }
-    .route-card strong { display: block; margin-bottom: 8px; }
-    .route-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.cards-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px; }
+.route-card { background: rgba(255, 255, 255, 0.055); border: 1px solid var(--border); border-radius: 22px; padding: 16px; min-height: 120px; }
+.route-card strong { display: block; margin-bottom: 8px; }
+.route-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 
-    .section-head { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px; gap: 12px; }
-    .section-head h2 { margin: 0; }
-    .section-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.section-head { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px; gap: 12px; }
+.section-head h2 { margin: 0; }
+.section-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    .tracks, .preview-results, .video-results { display: grid; gap: 8px; }
+.tracks, .preview-results, .video-results { display: grid; gap: 8px; }
 
-    .track, .preview-item, .video-item {
-      display: grid; align-items: center; gap: 12px; padding: 10px; border-radius: 16px;
-      background: rgba(255, 255, 255, 0.045); border: 1px solid transparent;
-    }
-    .track { grid-template-columns: 46px 1fr 90px 44px; cursor: pointer; }
-    .preview-item { grid-template-columns: 54px 1fr auto; }
-    .video-item { grid-template-columns: 96px 1fr auto; }
+.track, .preview-item, .video-item {
+  display: grid; align-items: center; gap: 12px; padding: 10px; border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045); border: 1px solid transparent;
+}
+.track { grid-template-columns: 46px 1fr 90px 44px; cursor: pointer; }
+.preview-item { grid-template-columns: 54px 1fr auto; }
+.video-item { grid-template-columns: 96px 1fr auto; }
 
-    .track:hover, .track.playing, .preview-item:hover, .video-item:hover { background: var(--accent-soft); border-color: rgba(29, 185, 84, 0.35); }
+.track:hover, .track.playing, .preview-item:hover, .video-item:hover { background: var(--accent-soft); border-color: rgba(29, 185, 84, 0.35); }
 
-    .cover-small, .artwork, .thumb {
-      border-radius: 12px; background: linear-gradient(135deg, #2dd36f, #253d2c); display: grid; place-items: center; overflow: hidden; flex: 0 0 auto;
-    }
-    .cover-small { width: 46px; height: 46px; }
-    .artwork { width: 54px; height: 54px; }
-    .thumb { width: 96px; height: 54px; background: #000; }
-    .artwork img, .cover-small img, .thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cover-small, .artwork, .thumb {
+  border-radius: 12px; background: linear-gradient(135deg, #2dd36f, #253d2c); display: grid; place-items: center; overflow: hidden; flex: 0 0 auto;
+}
+.cover-small { width: 46px; height: 46px; }
+.artwork { width: 54px; height: 54px; }
+.thumb { width: 96px; height: 54px; background: #000; }
+.artwork img, .cover-small img, .thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-    .track-title { font-weight: 900; }
-    .track-meta, .duration, .muted { color: var(--muted); font-size: 13px; }
-    .mini-controls { display: flex; gap: 8px; align-items: center; }
-    .small-btn { border: 1px solid var(--border); background: var(--panel-soft); color: var(--text); padding: 9px 11px; border-radius: 12px; cursor: pointer; font-weight: 800; white-space: nowrap; }
-    .small-btn.primary { background: var(--accent); color: #061008; border: 0; }
+.track-title { font-weight: 900; }
+.track-meta, .duration, .muted { color: var(--muted); font-size: 13px; }
+.mini-controls { display: flex; gap: 8px; align-items: center; }
+.small-btn { border: 1px solid var(--border); background: var(--panel-soft); color: var(--text); padding: 9px 11px; border-radius: 12px; cursor: pointer; font-weight: 800; white-space: nowrap; }
+.small-btn.primary { background: var(--accent); color: #061008; border: 0; }
 
-    .right-panel { padding: 24px 20px; background: rgba(12, 12, 15, 0.88); border-left: 1px solid var(--border); overflow: auto; }
-    .now-playing-card, .web-search-panel, .preview-panel, .youtube-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 28px; padding: 18px; }
-    .web-search-panel, .preview-panel, .youtube-panel { margin-top: 18px; border-radius: 22px; background: rgba(255, 255, 255, 0.05); }
+.right-panel { padding: 24px 20px; background: rgba(12, 12, 15, 0.88); border-left: 1px solid var(--border); overflow: auto; }
+.now-playing-card, .web-search-panel, .preview-panel, .youtube-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 28px; padding: 18px; }
+.web-search-panel, .preview-panel, .youtube-panel { margin-top: 18px; border-radius: 22px; background: rgba(255, 255, 255, 0.05); }
 
-    .big-cover { aspect-ratio: 1; border-radius: 24px; background: linear-gradient(145deg, #1db954, #13351f 65%, #0f0f13); display: grid; place-items: center; font-size: 82px; margin-bottom: 18px; overflow: hidden; }
-    .big-cover img { width: 100%; height: 100%; object-fit: cover; }
-    .now-title { font-size: 24px; font-weight: 950; margin-bottom: 4px; }
+.big-cover { aspect-ratio: 1; border-radius: 24px; background: linear-gradient(145deg, #1db954, #13351f 65%, #0f0f13); display: grid; place-items: center; font-size: 82px; margin-bottom: 18px; overflow: hidden; }
+.big-cover img { width: 100%; height: 100%; object-fit: cover; }
+.now-title { font-size: 24px; font-weight: 950; margin-bottom: 4px; }
 
-    .controls { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 18px 0; }
-    .control-btn { width: 44px; height: 44px; border-radius: 999px; border: 0; cursor: pointer; background: var(--panel-soft); color: var(--text); font-size: 17px; }
-    .control-btn.play { width: 56px; height: 56px; background: var(--accent); color: #061008; font-weight: 900; }
+.controls { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 18px 0; }
+.control-btn { width: 44px; height: 44px; border-radius: 999px; border: 0; cursor: pointer; background: var(--panel-soft); color: var(--text); font-size: 17px; }
+.control-btn.play { width: 56px; height: 56px; background: var(--accent); color: #061008; font-weight: 900; }
 
-    input, select { width: 100%; background: #0d0d11; border: 1px solid var(--border); color: var(--text); border-radius: 14px; padding: 12px; margin: 10px 0; }
-    .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .web-search-panel button, .preview-panel button, .youtube-panel button { width: 100%; border: 0; border-radius: 14px; padding: 12px; background: var(--accent); color: #061008; font-weight: 900; cursor: pointer; margin-top: 8px; }
-    button.secondary { background: var(--panel-soft) !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
+input, select { width: 100%; background: #0d0d11; border: 1px solid var(--border); color: var(--text); border-radius: 14px; padding: 12px; margin: 10px 0; }
+.button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.web-search-panel button, .preview-panel button, .youtube-panel button { width: 100%; border: 0; border-radius: 14px; padding: 12px; background: var(--accent); color: #061008; font-weight: 900; cursor: pointer; margin-top: 8px; }
+button.secondary { background: var(--panel-soft) !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
 
-    .warning, .gold-note, .ok-note { color: #ffd1da; background: rgba(255, 92, 122, 0.12); border: 1px solid rgba(255, 92, 122, 0.28); border-radius: 16px; padding: 10px; font-size: 12px; line-height: 1.45; margin-top: 10px; }
-    .gold-note { color: #ffe9ad; background: rgba(255, 209, 102, 0.11); border-color: rgba(255, 209, 102, 0.25); }
-    .ok-note { color: #b9ffd0; background: rgba(29,185,84,0.10); border-color: rgba(29,185,84,0.26); }
-    .mini-note { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.warning, .gold-note, .ok-note { color: #ffd1da; background: rgba(255, 92, 122, 0.12); border: 1px solid rgba(255, 92, 122, 0.28); border-radius: 16px; padding: 10px; font-size: 12px; line-height: 1.45; margin-top: 10px; }
+.gold-note { color: #ffe9ad; background: rgba(255, 209, 102, 0.11); border-color: rgba(255, 209, 102, 0.25); }
+.ok-note { color: #b9ffd0; background: rgba(29,185,84,0.10); border-color: rgba(29,185,84,0.26); }
+.mini-note { color: var(--muted); font-size: 12px; line-height: 1.5; }
 
-    .player-bar { grid-column: 1 / 3; background: rgba(8, 8, 10, 0.96); border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; gap: 18px; padding: 12px 24px; }
-    .bar-track { display: flex; align-items: center; gap: 12px; min-width: 0; }
-    audio { width: 100%; accent-color: var(--accent); }
-    .status-pill { background: var(--accent-soft); color: #9ef7bf; padding: 9px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; white-space: nowrap; }
+.player-bar { grid-column: 1 / 3; background: rgba(8, 8, 10, 0.96); border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; gap: 18px; padding: 12px 24px; }
+.bar-track { display: flex; align-items: center; gap: 12px; min-width: 0; }
+audio { width: 100%; accent-color: var(--accent); }
+.status-pill { background: var(--accent-soft); color: #9ef7bf; padding: 9px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; white-space: nowrap; }
 
-    iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; background: #000; }
-    #embedArea:empty, #youtubeEmbedArea:empty { display: none; }
+iframe { width: 100%; border: 0; border-radius: 18px; margin-top: 12px; background: #000; }
+#embedArea:empty, #youtubeEmbedArea:empty { display: none; }
 
-    @media (max-width: 1120px) {
-      .cards-grid { grid-template-columns: 1fr; }
-      .app { grid-template-columns: 1fr; grid-template-rows: 74px 1fr auto auto; }
-      .top-nav { grid-column: 1; }
-      .right-panel { grid-column: 1; border-left: 0; border-top: 1px solid var(--border); }
-      .player-bar { grid-column: 1; grid-template-columns: 1fr; }
-    }
+@media (max-width: 1120px) {
+  .cards-grid { grid-template-columns: 1fr; }
+  .app { grid-template-columns: 1fr; grid-template-rows: 74px 1fr auto auto; }
+  .top-nav { grid-column: 1; }
+  .right-panel { grid-column: 1; border-left: 0; border-top: 1px solid var(--border); }
+  .player-bar { grid-column: 1; grid-template-columns: 1fr; }
+}
 
-    @media (max-width: 720px) {
-      body { overflow: auto; }
-      .app { display: block; height: auto; }
-      .top-nav { position: sticky; top: 0; }
-      .brand span { display: none; }
-      .top-search button { display: none; }
-      .main, .right-panel { padding: 16px; }
-      .hero { grid-template-columns: 1fr; }
-      .hero-card { display: none; }
-      .track { grid-template-columns: 42px 1fr 44px; }
-      .preview-item, .video-item { grid-template-columns: 1fr; }
-      .thumb { width: 100%; height: auto; aspect-ratio: 16 / 9; }
-      .mini-controls { grid-column: 1 / -1; }
-      .duration { display: none; }
-      .player-bar { position: sticky; bottom: 0; }
-    }
+@media (max-width: 720px) {
+  body { overflow: auto; }
+  .app { display: block; height: auto; }
+  .top-nav { position: sticky; top: 0; }
+  .brand span { display: none; }
+  .top-search button { display: none; }
+  .main, .right-panel { padding: 16px; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-card { display: none; }
+  .track { grid-template-columns: 42px 1fr 44px; }
+  .preview-item, .video-item { grid-template-columns: 1fr; }
+  .thumb { width: 100%; height: auto; aspect-ratio: 16 / 9; }
+  .mini-controls { grid-column: 1 / -1; }
+  .duration { display: none; }
+  .player-bar { position: sticky; bottom: 0; }
+}
+```
+
   </style>
 </head>
 <body>
@@ -235,21 +239,24 @@
       <button class="close-menu" onclick="closeMenu()">×</button>
     </div>
 
-    <nav class="nav">
-      <button class="active" onclick="focusLibrary(); closeMenu();">🏠 Home</button>
-      <button onclick="focusLibrary(); closeMenu();">📁 Local Files</button>
-      <button onclick="focusPreviewSearch(); closeMenu();">🎧 Preview Search</button>
-      <button onclick="focusYouTubeSearch(); closeMenu();">▶️ YouTube</button>
-      <button onclick="focusWebSearch(); closeMenu();">🌐 Web / Embeds</button>
-      <button onclick="closeMenu()">⬇️ Offline</button>
-    </nav>
+```
+<nav class="nav">
+  <button class="active" onclick="focusLibrary(); closeMenu();">🏠 Home</button>
+  <button onclick="focusLibrary(); closeMenu();">📁 Local Files</button>
+  <button onclick="focusPreviewSearch(); closeMenu();">🎧 Preview Search</button>
+  <button onclick="focusYouTubeSearch(); closeMenu();">▶️ YouTube</button>
+  <button onclick="focusWebSearch(); closeMenu();">🌐 Web / Embeds</button>
+  <button onclick="closeMenu()">⬇️ Offline</button>
+</nav>
 
-    <div class="library-actions">
-      <label class="primary-btn" for="fileInput">Import Music</label>
-      <input id="fileInput" type="file" multiple accept="audio/*" hidden />
-      <button class="ghost-btn" onclick="addDemoSongs(); closeMenu();">Add Demo Tracks</button>
-      <button class="ghost-btn" onclick="clearOfflineLibrary(); closeMenu();">Clear Offline Library</button>
-    </div>
+<div class="library-actions">
+  <label class="primary-btn" for="fileInput">Import Music</label>
+  <input id="fileInput" type="file" multiple accept="audio/*" hidden />
+  <button class="ghost-btn" onclick="addDemoSongs(); closeMenu();">Add Demo Tracks</button>
+  <button class="ghost-btn" onclick="clearOfflineLibrary(); closeMenu();">Clear Offline Library</button>
+</div>
+```
+
   </aside>
 
   <div class="app">
@@ -259,96 +266,101 @@
         <div class="brand"><div class="logo">♪</div><span>My Locker</span></div>
       </div>
 
-      <div class="top-search">
-        <input id="librarySearch" placeholder="Search your library..." oninput="renderSongs()" />
-        <button onclick="focusYouTubeSearch()">YouTube</button>
+```
+  <div class="top-search">
+    <input id="librarySearch" placeholder="Search your library..." oninput="renderSongs()" />
+    <button onclick="focusYouTubeSearch()">YouTube</button>
+  </div>
+
+  <div class="status-pill" id="offlineStatus">Offline DB loading</div>
+</header>
+
+<main class="main" id="libraryArea">
+  <section class="hero">
+    <div>
+      <h1>Your personal music app</h1>
+      <p>Full offline playback from imported files, legal preview discovery from iTunes/Deezer, and official YouTube embedded playback for videos.</p>
+    </div>
+    <div class="hero-card">♫</div>
+  </section>
+
+  <section class="cards-grid">
+    <div class="route-card"><strong>1. Full songs offline</strong><p>Imported files are stored in IndexedDB as audio blobs, so they remain after refresh and can work offline in the browser.</p></div>
+    <div class="route-card"><strong>2. Music discovery</strong><p>iTunes and Deezer previews are legal discovery layers. Save previews to your library or open official links.</p></div>
+    <div class="route-card"><strong>3. YouTube videos</strong><p>Search and embed using YouTube’s official player. No stream extraction, no MP3 conversion, no offline YouTube caching.</p></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Offline Library</h2>
+      <div class="section-actions">
+        <span class="muted" id="trackCount">0 tracks</span>
+        <button class="small-btn" onclick="focusPreviewSearch()">Search previews</button>
       </div>
+    </div>
+    <div class="tracks" id="songList"></div>
+  </section>
 
-      <div class="status-pill" id="offlineStatus">Offline DB loading</div>
-    </header>
+  <section class="preview-panel" id="previewSearchPanel">
+    <strong>Search legal previews</strong>
+    <p class="mini-note">Try “Justin Bieber”, “Ariana Grande”, or any artist/song. iTunes and Deezer usually return 30-second previews, artwork and links.</p>
+    <select id="previewProvider"><option value="both">iTunes + Deezer</option><option value="itunes">iTunes only</option><option value="deezer">Deezer only</option></select>
+    <input id="previewQuery" placeholder="Search artist, song, album..." />
+    <div class="button-row"><button onclick="searchPreviews()">Search previews</button><button class="secondary" onclick="clearPreviewResults()">Clear</button></div>
+    <div class="gold-note">Preview results are for discovery. For full offline playback, import files you own or use licensed/direct sources.</div>
+    <div class="preview-results" id="previewResults" style="margin-top: 12px;"></div>
+  </section>
 
-    <main class="main" id="libraryArea">
-      <section class="hero">
-        <div>
-          <h1>Your personal music app</h1>
-          <p>Full offline playback from imported files, legal preview discovery from iTunes/Deezer, and official YouTube embedded playback for videos.</p>
-        </div>
-        <div class="hero-card">♫</div>
-      </section>
+  <section class="youtube-panel" id="youtubeSearchPanel">
+    <strong>YouTube video search</strong>
+    <p class="mini-note">This uses official embedded playback. For a real deployment, add a YouTube Data API key or a small backend endpoint that calls YouTube search.</p>
+    <input id="youtubeQuery" placeholder="Search YouTube videos, e.g. Justin Bieber official video" />
+    <div class="button-row"><button onclick="searchYouTubeMockOrApi()">Search YouTube</button><button class="secondary" onclick="clearYouTubeResults()">Clear</button></div>
+    <div class="ok-note">Legal route: search video metadata, then play using YouTube’s embedded player. Do not download, extract audio, or cache YouTube media offline.</div>
+    <div class="video-results" id="youtubeResults" style="margin-top: 12px;"></div>
+  </section>
+</main>
 
-      <section class="cards-grid">
-        <div class="route-card"><strong>1. Full songs offline</strong><p>Imported files are stored in IndexedDB as audio blobs, so they remain after refresh and can work offline in the browser.</p></div>
-        <div class="route-card"><strong>2. Music discovery</strong><p>iTunes and Deezer previews are legal discovery layers. Save previews to your library or open official links.</p></div>
-        <div class="route-card"><strong>3. YouTube videos</strong><p>Search and embed using YouTube’s official player. No stream extraction, no MP3 conversion, no offline YouTube caching.</p></div>
-      </section>
+<aside class="right-panel">
+  <div class="now-playing-card">
+    <div class="big-cover" id="bigCover">♫</div>
+    <div class="now-title" id="nowTitle">Nothing playing</div>
+    <div class="muted" id="nowArtist">Import a song, search previews, or embed YouTube</div>
+    <div class="controls"><button class="control-btn" onclick="previousSong()">⏮</button><button class="control-btn play" onclick="togglePlay()" id="playPauseBtn">▶</button><button class="control-btn" onclick="nextSong()">⏭</button></div>
+    <div class="mini-note">Background playback depends on browser support. Native wrappers give stronger iOS/Android background audio later.</div>
+  </div>
 
-      <section>
-        <div class="section-head">
-          <h2>Offline Library</h2>
-          <div class="section-actions">
-            <span class="muted" id="trackCount">0 tracks</span>
-            <button class="small-btn" onclick="focusPreviewSearch()">Search previews</button>
-          </div>
-        </div>
-        <div class="tracks" id="songList"></div>
-      </section>
+  <div id="youtubeEmbedArea"></div>
 
-      <section class="preview-panel" id="previewSearchPanel">
-        <strong>Search legal previews</strong>
-        <p class="mini-note">Try “Justin Bieber”, “Ariana Grande”, or any artist/song. iTunes and Deezer usually return 30-second previews, artwork and links.</p>
-        <select id="previewProvider"><option value="both">iTunes + Deezer</option><option value="itunes">iTunes only</option><option value="deezer">Deezer only</option></select>
-        <input id="previewQuery" placeholder="Search artist, song, album..." />
-        <div class="button-row"><button onclick="searchPreviews()">Search previews</button><button class="secondary" onclick="clearPreviewResults()">Clear</button></div>
-        <div class="gold-note">Preview results are for discovery. For full offline playback, import files you own or use licensed/direct sources.</div>
-        <div class="preview-results" id="previewResults" style="margin-top: 12px;"></div>
-      </section>
+  <div class="web-search-panel" id="webSearchPanel">
+    <strong>Web search / official embeds</strong>
+    <p class="mini-note">Search official pages or embed supported YouTube/SoundCloud URLs. Direct audio URL playback is for legal MP3/radio/podcast/public-domain streams.</p>
+    <select id="searchProvider"><option value="web">Web: legal audio sources</option><option value="youtube">YouTube</option><option value="soundcloud">SoundCloud</option><option value="spotify">Spotify</option><option value="archive">Internet Archive audio</option></select>
+    <input id="webQuery" placeholder="Song, artist, URL, podcast, radio stream..." />
+    <div class="button-row"><button onclick="searchWebProvider()">Search</button><button class="secondary" onclick="tryOfficialEmbed()">Embed URL</button></div>
+    <button class="secondary" onclick="tryPlayUrl()">Try Play Direct Audio URL</button>
+    <div id="embedArea"></div>
+    <div class="warning">⚠️ <strong>Spotify streaming is not possible in a browser app.</strong> Spotify uses DRM-protected streams — their Web Playback SDK requires Premium and only works on official/whitelisted domains. The Spotify embed below is preview-only (30 s for free, full track for Premium inside their own frame). YouTube/SoundCloud extraction is also intentionally not included. Use official embeds, imported local files, or licensed direct audio URLs.</div>
+  </div>
+</aside>
 
-      <section class="youtube-panel" id="youtubeSearchPanel">
-        <strong>YouTube video search</strong>
-        <p class="mini-note">This uses official embedded playback. For a real deployment, add a YouTube Data API key or a small backend endpoint that calls YouTube search.</p>
-        <input id="youtubeQuery" placeholder="Search YouTube videos, e.g. Justin Bieber official video" />
-        <div class="button-row"><button onclick="searchYouTubeMockOrApi()">Search YouTube</button><button class="secondary" onclick="clearYouTubeResults()">Clear</button></div>
-        <div class="ok-note">Legal route: search video metadata, then play using YouTube’s embedded player. Do not download, extract audio, or cache YouTube media offline.</div>
-        <div class="video-results" id="youtubeResults" style="margin-top: 12px;"></div>
-      </section>
-    </main>
+<footer class="player-bar">
+  <div class="bar-track"><div class="cover-small" id="barCover">♫</div><div><div class="track-title" id="barTitle">Nothing playing</div><div class="track-meta" id="barMeta">Ready</div></div></div>
+  <audio id="audioPlayer" controls></audio>
+  <div class="muted">IndexedDB offline • Legal previews • YouTube embeds</div>
+</footer>
+```
 
-    <aside class="right-panel">
-      <div class="now-playing-card">
-        <div class="big-cover" id="bigCover">♫</div>
-        <div class="now-title" id="nowTitle">Nothing playing</div>
-        <div class="muted" id="nowArtist">Import a song, search previews, or embed YouTube</div>
-        <div class="controls"><button class="control-btn" onclick="previousSong()">⏮</button><button class="control-btn play" onclick="togglePlay()" id="playPauseBtn">▶</button><button class="control-btn" onclick="nextSong()">⏭</button></div>
-        <div class="mini-note">Background playback depends on browser support. Native wrappers give stronger iOS/Android background audio later.</div>
-      </div>
-
-      <div id="youtubeEmbedArea"></div>
-
-      <div class="web-search-panel" id="webSearchPanel">
-        <strong>Web search / official embeds</strong>
-        <p class="mini-note">Search official pages or embed supported YouTube/SoundCloud URLs. Direct audio URL playback is for legal MP3/radio/podcast/public-domain streams.</p>
-        <select id="searchProvider"><option value="web">Web: legal audio sources</option><option value="youtube">YouTube</option><option value="soundcloud">SoundCloud</option><option value="spotify">Spotify</option><option value="archive">Internet Archive audio</option></select>
-        <input id="webQuery" placeholder="Song, artist, URL, podcast, radio stream..." />
-        <div class="button-row"><button onclick="searchWebProvider()">Search</button><button class="secondary" onclick="tryOfficialEmbed()">Embed URL</button></div>
-        <button class="secondary" onclick="tryPlayUrl()">Try Play Direct Audio URL</button>
-        <div id="embedArea"></div>
-        <div class="warning">YouTube/SoundCloud/Spotify extraction is intentionally not included. Use official embeds/pages, imported files, or licensed direct audio URLs.</div>
-      </div>
-    </aside>
-
-    <footer class="player-bar">
-      <div class="bar-track"><div class="cover-small" id="barCover">♫</div><div><div class="track-title" id="barTitle">Nothing playing</div><div class="track-meta" id="barMeta">Ready</div></div></div>
-      <audio id="audioPlayer" controls></audio>
-      <div class="muted">IndexedDB offline • Legal previews • YouTube embeds</div>
-    </footer>
   </div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
+
   <script>
     const DB_NAME = "my-music-locker-db";
     const DB_VERSION = 1;
     const STORE = "tracks";
-    const YOUTUBE_API_KEY = "AIzaSyDyzoRFRm2TQHdmJ8GQBn-1GHI9op92tdg"; // Browser-exposed test key. For production, move this to a backend/Vercel API route.
+    // API key is NOT stored here. Requests go through /api/youtube-search (Vercel serverless function)
+    // which reads the key from a server-side environment variable (YOUTUBE_API_KEY in Vercel dashboard).
     let youtubePlayer = null;
     let youtubeIframe = null;
     let youtubeIsPlaying = false;
@@ -609,38 +621,33 @@
 
       youtubeResults.innerHTML = `<div class="muted">Searching YouTube...</div>`;
 
-      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_DATA_API_KEY_HERE") {
-        youtubeResults.innerHTML = `
-          <div class="warning">
-            Add a YouTube Data API key to <strong>YOUTUBE_API_KEY</strong> to enable real YouTube search. For production, use a backend proxy so the key is not exposed in browser code.
-          </div>
-          <div class="video-item">
-            <div class="thumb"><img src="https://img.youtube.com/vi/kffacxfA7G4/hqdefault.jpg" alt=""></div>
-            <div><div class="track-title">Example YouTube result</div><div class="track-meta">Demo result • Add API key for real search</div></div>
-            <div class="mini-controls"><button class="small-btn primary" onclick="embedYouTube('kffacxfA7G4','Example YouTube result','Demo result')">▶ Play</button></div>
-          </div>`;
-        return;
-      }
-
       try {
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&safeSearch=none&maxResults=12&q=${encodeURIComponent(query)}&key=${encodeURIComponent(YOUTUBE_API_KEY)}`;
-        const res = await fetch(url);
+        // Calls our own Vercel API route — key never exposed to the browser
+        const res = await fetch(`/api/youtube-search?q=${encodeURIComponent(query)}`);
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data?.error?.message || "YouTube search failed");
+          // If running locally (not on Vercel), the route won't exist — show instructions
+          if (res.status === 404) {
+            youtubeResults.innerHTML = `
+              <div class="warning">
+                <strong>Deploy to Vercel to enable YouTube search.</strong><br>
+                Running locally? See the <code>api/youtube-search.js</code> file included in your project,
+                or run <code>vercel dev</code> locally to test the API route.
+              </div>
+              <div class="video-item">
+                <div class="thumb"><img src="https://img.youtube.com/vi/kffacxfA7G4/hqdefault.jpg" alt=""></div>
+                <div><div class="track-title">Example YouTube result</div><div class="track-meta">Deploy to Vercel for real search</div></div>
+                <div class="mini-controls"><button class="small-btn primary" onclick="embedYouTube('kffacxfA7G4','Example YouTube result','Demo result')">▶ Play</button></div>
+              </div>`;
+            return;
+          }
+          throw new Error(data?.error || "YouTube search failed");
         }
 
-        const results = (data.items || []).map(item => ({
-          id: item.id.videoId,
-          title: item.snippet.title,
-          channel: item.snippet.channelTitle,
-          thumb: item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url || ""
-        }));
-
-        renderYouTubeResults(results);
+        renderYouTubeResults(data.results || []);
       } catch (err) {
-        youtubeResults.innerHTML = `<div class="warning">YouTube search failed: ${escapeHtml(err.message)}. Check your API key, quota, and allowed referrers.</div>`;
+        youtubeResults.innerHTML = `<div class="warning">YouTube search failed: ${escapeHtml(err.message)}</div>`;
       }
     }
 
@@ -671,7 +678,10 @@
       barCover.innerHTML = "▶";
       playPauseBtn.textContent = "▶";
 
-      const src = `https://www.youtube.com/embed/${escapeAttr(videoId)}?playsinline=1&controls=1&rel=0&modestbranding=1`;
+      // enablejsapi=1 is required for the iframe API and postMessage commands to work.
+      // autoplay=1 triggers playback after embed; origin param avoids cross-origin blocks.
+      const origin = encodeURIComponent(location.origin || "null");
+      const src = `https://www.youtube.com/embed/${escapeAttr(videoId)}?playsinline=1&controls=1&rel=0&modestbranding=1&enablejsapi=1&autoplay=1&origin=${origin}`;
 
       youtubeEmbedArea.innerHTML = `
         <iframe
@@ -682,14 +692,97 @@
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
         </iframe>
-        <div class="gold-note">
-          Tap play inside the YouTube frame. If it still does not play, the owner/browser is blocking embedded playback — use Open YouTube.
-        </div>
-        <button class="secondary" onclick="window.open('https://www.youtube.com/watch?v=${escapeAttr(videoId)}','_blank','noopener,noreferrer')">Open YouTube</button>
+        <div id="ytAdStatus" class="gold-note" style="display:none;">⏭ Ad detected — skipping…</div>
+        <button class="secondary" style="margin-top:8px;" onclick="window.open('https://www.youtube.com/watch?v=${escapeAttr(videoId)}','_blank','noopener,noreferrer')">Open YouTube</button>
       `;
 
       youtubeIframe = document.getElementById("youtubePlayerFrame");
+
+      // Start ad-skip watcher on the iframe's inner document (works when same-origin; 
+      // for cross-origin YouTube embeds we listen to postMessage state events instead).
+      startAdSkip(videoId);
     }
+
+    // ── Ad-skip engine ────────────────────────────────────────────────────────
+    // The provided snippet targets .ad-showing on the YouTube page DOM, which is only
+    // accessible when running as a userscript on youtube.com itself (same-origin).
+    // Inside an embedded iframe the iframe's document is cross-origin and cannot be
+    // accessed. We implement a compatible version using the YouTube iframe postMessage
+    // API: when YT reports an ad is playing (playerState info contains adState),
+    // we seek to end of ad. As a belt-and-suspenders measure we also inject the
+    // original snippet into the iframe via the enablejsapi postMessage channel when
+    // the iframe fires a ready event.
+    let adSkipInterval = null;
+
+    function startAdSkip(videoId) {
+      stopAdSkip(); // clear any previous watcher
+
+      const adStatusEl = document.getElementById("ytAdStatus");
+
+      // Listen for messages from the YouTube iframe
+      function onYtMessage(evt) {
+        if (!evt.data) return;
+        let data;
+        try { data = typeof evt.data === "string" ? JSON.parse(evt.data) : evt.data; } catch { return; }
+
+        // YouTube iframe API fires "infoDelivery" events with video info
+        if (data.event === "infoDelivery" && data.info) {
+          const info = data.info;
+          // playerAdDisplayed / adState indicate an ad is running
+          const adActive = info.playerAdDisplayed || (info.adState != null && info.adState !== -1 && info.adState !== 0);
+          if (adActive) {
+            if (adStatusEl) adStatusEl.style.display = "";
+            // Skip by seeking to end of current video duration via postMessage
+            if (youtubeIframe && youtubeIframe.contentWindow) {
+              const dur = info.duration || 9999;
+              youtubeIframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "seekTo", args: [dur, true] }), "*");
+            }
+          } else {
+            if (adStatusEl) adStatusEl.style.display = "none";
+          }
+        }
+
+        // When the iframe API is fully ready, request continuous info delivery
+        if (data.event === "onReady") {
+          if (youtubeIframe && youtubeIframe.contentWindow) {
+            youtubeIframe.contentWindow.postMessage(JSON.stringify({ event: "listening" }), "*");
+          }
+        }
+      }
+
+      window.addEventListener("message", onYtMessage);
+
+      // Also run the original polling-based approach inside a fallback interval
+      // (this works if the page is ever served from the same origin as youtube.com,
+      // e.g. in a Electron/Tauri wrapper with web-contents access).
+      adSkipInterval = setInterval(() => {
+        try {
+          const frame = document.getElementById("youtubePlayerFrame");
+          if (!frame) return;
+          const frameDoc = frame.contentDocument || frame.contentWindow?.document;
+          if (!frameDoc) return; // cross-origin — expected in normal browser
+          const ad = frameDoc.querySelector(".ad-showing");
+          if (ad) {
+            if (adStatusEl) adStatusEl.style.display = "";
+            const video = frameDoc.querySelector("video");
+            if (video) video.currentTime = video.duration;
+          } else {
+            if (adStatusEl) adStatusEl.style.display = "none";
+          }
+        } catch (_) { /* cross-origin security exception — safe to ignore */ }
+      }, 500);
+
+      // Store cleanup reference
+      youtubeIframe._adCleanup = () => {
+        window.removeEventListener("message", onYtMessage);
+        stopAdSkip();
+      };
+    }
+
+    function stopAdSkip() {
+      if (adSkipInterval != null) { clearInterval(adSkipInterval); adSkipInterval = null; }
+    }
+    // ── End ad-skip engine ───────────────────────────────────────────────────
 
     function sendYouTubeCommand(func, args = []) {
       if (youtubePlayer && typeof youtubePlayer[func] === "function") {
@@ -700,7 +793,13 @@
       youtubeIframe.contentWindow.postMessage(JSON.stringify({ event: "command", func, args }), "*");
     }
 
-    function clearYouTubeResults() { youtubeResults.innerHTML = ""; }
+    function clearYouTubeResults() {
+      youtubeResults.innerHTML = "";
+      stopAdSkip();
+      if (youtubeIframe && youtubeIframe._adCleanup) youtubeIframe._adCleanup();
+      youtubeEmbedArea.innerHTML = "";
+      youtubeIframe = null;
+    }
 
     function searchWebProvider() {
       const query = webQuery.value.trim(); if (!query) return;
@@ -743,5 +842,6 @@
 
     init();
   </script>
+
 </body>
 </html>
